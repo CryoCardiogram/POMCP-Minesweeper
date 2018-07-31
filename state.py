@@ -28,7 +28,7 @@ class State(object):
             if log:
                 print("autoprobe")
             for R,C in self.board.neighbourhood(r, c):
-                self.probe(R, C, log=False)
+                self.board.update(r,c, log = False)
 
         return val
 
