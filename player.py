@@ -4,13 +4,13 @@ from globals import *
 import random, os
 
 class AbstractPlayer(object):
-    def selectCell(self, state):
+    def next_action(self, state):
         pass
 
 class RandomPlayer(AbstractPlayer):
-    def selectCell(self, state):
-        return random.choice(state.unknown)
-
+    def next_action(self, state):
+        return (random.choice(range(state.board.h)), random.choice(range(state.board.w)) )
+"""
 class QPlayer(AbstractPlayer):
     def __init__(self, ind):
         self.ind = ind
@@ -27,10 +27,6 @@ class QPlayer(AbstractPlayer):
         self.P.update({state: actions})
 
     def train(self, board):
-        """
-        Improved Q-learning algorithm for Minesweeper
-
-        """
         game_over = False
         state = State(board)
         # first move (first cell is always safe)
@@ -58,7 +54,8 @@ class QPlayer(AbstractPlayer):
             return a
         else:
             return random.choice(state.unknown)
-        
+"""
+ 
 
 
 

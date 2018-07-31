@@ -1,15 +1,13 @@
 from board import Board
-from player import RandomPlayer, QPlayer
-from play import play_game
+from player import RandomPlayer
+from play import play_minesweeper
 
 
-def train_Qplayer(rounds, qplayer):
+""" def train_Qplayer(rounds, qplayer):
     assert isinstance(qplayer, QPlayer)
     print("training...")
     for r in range(rounds):
-        qplayer.train(Board(4,4,4))
-        #if r % 50 == 0:
-            #print("...")
+        qplayer.train(Board(4,4,4)) """
 
 b = Board(9,9,10)
 p = RandomPlayer()
@@ -18,8 +16,8 @@ p = RandomPlayer()
 
 
 print("let's play")
-w, s = play_game(p, b)
+w, s = play_minesweeper(p, b)
 print(w)
 print(s)
-for l in b.reveal :
+for l in b.minefield :
     print(l)
