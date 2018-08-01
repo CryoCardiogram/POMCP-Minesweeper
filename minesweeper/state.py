@@ -2,12 +2,56 @@ from board import Board
 import random
 import math
 from globals import *
+from mdp.pomdp import POMDPState, POMDPObservation, POMDPAction
+
+class Observation(POMDPObservation):
+    """
+    Observations for Minesweeper consist of the knowledge matrix
+    """
+    def __init__(self, knowledge):
+        self.K = knowledge
+    
+    def available_actions(self):
+        for row in range(len(self.K)):
+            for col in range(len(self.K[0])):
+                val = self.K[row][col]
+                if val == UNCOV:
+                    yield Action(row, col)
+    
+    def __eq__(self, oth):
+        self.K == oth.K
+    
+    def __hash__(self):
+        t = tuple([ tuple(row) for row in self.K ])
+        hash(t)
+            
 
 
-class State(object):
+
+class Action(POMDPAction):
     """
-    Representation of a state of the game in our model, 
+    Actions in Minesweeper consist of the coordinates 
+    of the cell to probe.
     """
+    def __init__(self, r, c):
+        self.cell = (r,c)
+    
+    def __str__(self):
+        return "({},{})", self.cell[0], self.cell[1]
+    
+    def __eq__(self, oth):
+        return self.cell == oth.cell
+    
+    def do_on(self, state):
+        assert isinstance(state, State)
+        state.probe(self.cell[0], self.cell[1], log=False)
+        return Observation(state.board.knowledge) 
+
+class State(POMDPState):
+    """
+    Representation of a state of the minesweeper in our model, 
+    """
+
     def __init__(self, board):
         assert isinstance(board, Board)
         self.board = board
@@ -17,6 +61,9 @@ class State(object):
     
     def __eq__(self, other):
         return (tuple(self.board.minefield), tuple(self.board.knowledge), self.board.m) == (tuple(other.board.known), tuple(other.board.knowledge), other.board.m)
+
+    def is_goal(self):
+        return self.board.win()
 
     def probe(self, r, c, log=True):
         if log:
