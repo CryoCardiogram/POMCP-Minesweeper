@@ -34,7 +34,6 @@ class Board(object):
         l.append((x-1,y-1)) # nw
         for r,c in l:
             if r in range(self.h) and c in range(self.w):
-                #print("({},{})".format(r, c))
                 yield (r,c)
         
 
@@ -97,7 +96,7 @@ class Board(object):
             for row in self.knowledge:
                 print(row)
             print("_" * 25),
-        #print("({},{})".format(r, c))
+
         return self.minefield[r][c]
 
 
