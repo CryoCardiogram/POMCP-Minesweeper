@@ -13,9 +13,9 @@ class Board(object):
         self.firstmove = True
         
         # solution
-        self.minefield = array2D(width, height, '' )
+        self.minefield = array2D(height, width, '' )
         # current player's view
-        self.knowledge = array2D(width, height, UNCOV)
+        self.knowledge = array2D(height, width, UNCOV)
         # count of unvisited cells
         self.nUncov = self.h * self.w
 
@@ -43,8 +43,8 @@ class Board(object):
         """
         placed = 0
         while placed < self.m:
-            x = random.randint(0, self.w - 1)
-            y = random.randint(0, self.h - 1)
+            x = random.randint(0, self.h - 1)
+            y = random.randint(0, self.w - 1)
             if self.minefield[x][y] is not MINE and self.minefield[x][y] is not FMOVE :
                 # first move should never be a mine
                 self.minefield[x][y] = MINE
@@ -58,8 +58,8 @@ class Board(object):
         return count 
 
     def __hints(self):
-        for i in range(self.w):
-            for j in range(self.h):
+        for i in range(self.h):
+            for j in range(self.w):
                 if self.minefield[i][j] is not MINE:
                     mine_near = self.__mine_near(i,j)
                     self.minefield[i][j] = mine_near if mine_near > 0 else NOTHING

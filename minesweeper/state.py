@@ -19,11 +19,22 @@ class Observation(POMDPObservation):
                     yield Action(row, col)
     
     def __eq__(self, oth):
-        self.K == oth.K
+        for i in range(len(self.K)):
+            if self.K[i] != oth.K[i]:
+                return False
+        return True
     
     def __hash__(self):
         t = tuple([ tuple(row) for row in self.K ])
         hash(t)
+    
+    def __str__(self):
+        s = ''
+        for l in self.K:
+            s += str(l)
+            s += '\n'
+        return s 
+            
             
 
 
@@ -35,9 +46,11 @@ class Action(POMDPAction):
     """
     def __init__(self, r, c):
         self.cell = (r,c)
-    
+
     def __str__(self):
-        return "({},{})", self.cell[0], self.cell[1]
+        return "({},{})".format( self.cell[0], self.cell[1])
+
+    __repr__ = __str__
     
     def __eq__(self, oth):
         return self.cell == oth.cell

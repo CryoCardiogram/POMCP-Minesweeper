@@ -4,14 +4,14 @@ MINE = '*'
 UNCOV = "U"
 NOTHING = " "
 FMOVE = 'S'
-ONE = "1"
-TWO = "2"
-THREE = "3"
-FOUR = "4"
-FIVE = "5"
-SIX = "6"
-SEVEN = "7"
-EIGHT = "8"
+ONE = 1
+TWO = 2
+THREE = 3
+FOUR = 4
+FIVE = 5
+SIX = 6
+SEVEN = 7
+EIGHT = 9
 
 def save_obj(obj, name):
     with open('obj/'+ name + '.pkl', 'w+b') as f:

@@ -62,8 +62,7 @@ class Node(object):
         o = self.h.last_obs()
         for a in o.available_actions():
             # updated history 
-            ha = History()
-            ha.clone(self.h)
+            ha = self.h.clone()
             self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), list() )} )
         
     def add_inTree(self, obs):
@@ -86,7 +85,7 @@ class Node(object):
         Search the history h in the tree. 
         Explore the tree in BFS and stop the search as soon as the size of histories 
         in the tree become larger than len(h)
-        
+
         Args:
             h (History): history to look for. len(h) is greater or equals than 
             the history of the root. 
