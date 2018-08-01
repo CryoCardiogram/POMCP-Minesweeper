@@ -1,6 +1,6 @@
-from board import Board
-from player import RandomPlayer
-from play import play_minesweeper
+from minesweeper.board import Board
+from minesweeper.player import RandomPlayer
+from minesweeper.play import play_minesweeper
 
 
 """ def train_Qplayer(rounds, qplayer):
