@@ -1,6 +1,6 @@
 import os
 import random
-from globals import FMOVE, UNCOV, MINE, NOTHING
+from minesweeper.globals import FMOVE, UNCOV, MINE, NOTHING
 
 def array2D(row, col, elem):
     return [[ elem for y in range(col)] for l in range(row)]

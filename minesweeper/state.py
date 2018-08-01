@@ -1,7 +1,7 @@
-from board import Board
+from minesweeper.board import Board
 import random
 import math
-from globals import *
+from minesweeper.globals import *
 from mdp.pomdp import POMDPState, POMDPObservation, POMDPAction
 
 class Observation(POMDPObservation):
