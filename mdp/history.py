@@ -1,3 +1,5 @@
+from mdp.pomdp import POMDPAction, POMDPObservation
+
 class History(object):
     """
 
@@ -32,11 +34,17 @@ class History(object):
         """
         Update the history by adding a new action-observation pair.
         """
+        assert isinstance(action, POMDPAction)
+        assert isinstance(observation, POMDPObservation)
         self.actions.insert(0, action)
         self.observs.insert(0, observation)
     
     def last_action(self):
-        return self.actions[0]
+        a = self.actions[0]
+        assert isinstance(a, POMDPAction)
+        return a
     
     def last_obs(self):
-        return self.observs[0]
+        o = self.observs[0]
+        assert isinstance(o, POMDPObservation)
+        return o

@@ -15,6 +15,32 @@ class POMDPObservation(metaclass=ABCMeta):
             POMDPAction: the next available action for the current observation
         """
         pass
+    
+    def V_init(self, h, a):
+        """
+        Q(h, a) initial value for this observation. Can override this function
+        to initialize new nodes in the pomcp tree with specific values
+        from domain knowledge of the pomdp.
+
+        Args:
+            h (History): previous history for the current observation
+            a (POMDPAction): action resulting in the current observation
+        """
+        #TODO handle prefered actions
+        return 0
+    
+    def N_init(self, h, a):
+        """
+        Initial number of visits N(h,a) for the History h + action a and observation o, the current observation. 
+        Can override this function to initialize new nodes in the pomcp tree with specific values
+        from domain knowledge of the pomdp.
+
+        Args:
+            h (History): previous history for the current observation
+            a (POMDPAction): action resulting in the current observation
+        """
+        return 0
+
 
     @abstractmethod
     def __eq__(self, oth):
@@ -53,7 +79,7 @@ class POMDPState(metaclass=ABCMeta):
 class POMDPAction(metaclass=ABCMeta):
     """
     Abstract class for an Action of the POMDP model. 
-    This class Has to be extended depending on the application.
+    This class has to be extended depending on the application.
     """
     @abstractmethod
     def __eq__(self, oth):
@@ -76,6 +102,4 @@ class POMDPAction(metaclass=ABCMeta):
             This methods modifies the state variable.
         """
         pass
-    
-
         
