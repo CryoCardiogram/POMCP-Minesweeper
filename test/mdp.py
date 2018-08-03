@@ -1,7 +1,7 @@
 import unittest
 from minesweeper.board import Board
 from minesweeper.globals import UNCOV, ONE
-from minesweeper.state import State, Action, Observation
+from minesweeper.model import State, Action, Observation
 from mdp.pomdp import POMDPAction, POMDPObservation, POMDPState
 from mdp.history import History
 
@@ -14,18 +14,20 @@ class TestPOMDP(unittest.TestCase):
 
     def test_do_on(self):
         a = Action(0, 0)
-        o = a.do_on(self.s)
+        o,r = a.do_on(self.s)
         self.assertEqual( o.K, [[ONE, UNCOV], [UNCOV, UNCOV]] )
         self.assertEqual(o.K, self.s.board.knowledge)
+        self.assertEqual(0,r)
 
     def test_is_goal(self):
         a = Action(1, 1)
-        o = a.do_on(self.s2)
+        o,r = a.do_on(self.s2)
         self.assertTrue(self.s2.is_goal())
+        self.assertEqual(1, r)
 
     def test_available_actions(self):
         a = Action(1, 1)
-        o = a.do_on(self.s)
+        o,r = a.do_on(self.s)
         l = []
         for a in o.available_actions():
             l.append(a)
@@ -41,10 +43,10 @@ class TestHistory(unittest.TestCase):
 
     def test_add(self):
         a = Action(0, 0)
-        o = a.do_on(self.s)
+        o,r = a.do_on(self.s)
         self.h.add(a, o)
         a2 = Action(2, 1)
-        o2 = a2.do_on(self.s)
+        o2, r2 = a2.do_on(self.s)
         self.h.add(a2, o2)
         self.assertEqual(self.h.last_action(), a2)
         #print(o2)
@@ -54,7 +56,7 @@ class TestHistory(unittest.TestCase):
     
     def test_clone(self):
         a = Action(1, 0)
-        o = a.do_on(self.s)
+        o,r = a.do_on(self.s)
         self.h.add(a, o)
         h  = self.h.clone()
         self.assertEqual(h, self.h)

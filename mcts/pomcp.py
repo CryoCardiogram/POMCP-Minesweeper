@@ -6,7 +6,9 @@ params = {
     'K': 50,            # number of particles (size of the belief state space)
     'c': 0,             # exploration / exploitation ratio scalar constant (domain specific)
     'epsilon': 0.0,     # horizon discount factor
-    'gamma': 1          # reward discount factor
+    'gamma': 1,         # reward discount factor
+    'R_lo': 0,          # lowest value V(h) reached 
+    'R_hi': 1           # highest value V(h) reached
 }
 
 def UCB1_action_selection(node, greedy=False):
@@ -48,4 +50,3 @@ def UCB1_action_selection(node, greedy=False):
     l = [ (child.a, UCB1(child, node.N)) for child in node.children ]
 
     return max(l, key=lambda t: t[1])
-

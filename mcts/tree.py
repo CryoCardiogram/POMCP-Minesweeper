@@ -63,7 +63,7 @@ class Node(object):
         for a in o.available_actions():
             # updated history 
             ha = self.h.clone()
-            self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), list() )} )
+            self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), dict() )} )
         
     def add_inTree(self, obs):
         """
@@ -102,9 +102,3 @@ class Node(object):
                         fringe.append(node.children[a])
             else:
                 return False
-
-
-
-
-
-

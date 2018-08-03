@@ -92,14 +92,37 @@ class POMDPAction(metaclass=ABCMeta):
     @abstractmethod
     def do_on(self, state):
         """
-        Transition function. Perform the current action on the given state.
+        Transition function that performs the current action on the given state. It is used 
+        as a black-box simulator, in order to update the value function without knowing about the model's dynamics.
         
         Args:
             state (POMDPState): valid state on which to perform the action
 
         Return:
-            POMDPObservation: the observation resulting from performing the action. 
-            This methods modifies the state variable.
+            (POMDPObservation, int): the observation resulting from performing the action and the intermediate reward.
+            This method modifies the state variable.
         """
         pass
-        
+
+class DecisionProcess(metaclass=ABCMeta):
+    """
+    This ABC should be extended to describe meta-parameters of the POMDP. 
+    """
+    def invigoration(self, B):
+        """
+        Particle invigoration method to fill in the belief space with additional states, in order to 
+        avoid the degeneracy problem.
+
+        As the belief space for an an history h is approximated by a set of particles 
+        corresponding to a sample state, after each action-observation, the particles are updated by 
+        a Monte-Carlo sampling. 
+
+        This particle filter approeach may suffer from particle deprivation when the time step of the process
+        increases. A way to avoid that is to introduce new particles by adding artifiial noise to the belief space, from 
+        domain knowledge. 
+
+        Args:
+            B (list): belief space approximated by an unweighted bag of states (particles)  
+        """
+        pass
+    

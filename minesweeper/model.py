@@ -2,7 +2,7 @@ from minesweeper.board import Board
 import random
 import math
 from minesweeper.globals import *
-from mdp.pomdp import POMDPState, POMDPObservation, POMDPAction
+from mdp.pomdp import POMDPState, POMDPObservation, POMDPAction, DecisionProcess
 
 class Observation(POMDPObservation):
     """
@@ -35,10 +35,6 @@ class Observation(POMDPObservation):
             s += '\n'
         return s 
             
-            
-
-
-
 class Action(POMDPAction):
     """
     Actions in Minesweeper consist of the coordinates 
@@ -58,7 +54,8 @@ class Action(POMDPAction):
     def do_on(self, state):
         assert isinstance(state, State)
         state.probe(self.cell[0], self.cell[1], log=False)
-        return Observation(state.board.knowledge) 
+        r = 1 if state.is_goal() else 0
+        return (Observation(state.board.knowledge), r)
 
 class State(POMDPState):
     """
@@ -92,6 +89,11 @@ class State(POMDPState):
 
         return val
 
-        
+
+class Minesweeper(DecisionProcess):
+    def invigoration(self, B):
+        # TODO
+        pass
+
 
 

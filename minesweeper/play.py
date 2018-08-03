@@ -1,5 +1,5 @@
 from minesweeper.globals import *
-from minesweeper.state import State
+from minesweeper.model import State
 from minesweeper.board import Board
 from minesweeper.player import AbstractPlayer
 
