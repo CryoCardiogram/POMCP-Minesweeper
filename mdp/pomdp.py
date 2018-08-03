@@ -40,6 +40,14 @@ class POMDPObservation(metaclass=ABCMeta):
             a (POMDPAction): action resulting in the current observation
         """
         return 0
+    
+    @abstractmethod
+    def is_terminal(self):
+        """
+        Return:
+            bool: True if there is no available actions for this history
+        """
+        pass
 
 
     @abstractmethod
@@ -55,20 +63,10 @@ class POMDPState(metaclass=ABCMeta):
     Abstract class for a State of the POMDP model. 
     This class Has to be extended depending on the application.
     """
-    def successors(self, action):
-        """
-        Generates all observations resulting from performing the given action 
-        on the current state. 
-
-        Args:
-            action (POMDPAction): valid action done on the current state
-
-        Yields: 
-            POMDPObservation: the next possible observation resulting from doing the action
-            on the current state.
-        """
+    @abstractmethod
+    def clone(self):
         pass
-
+        
     @abstractmethod
     def is_goal(self):
         """

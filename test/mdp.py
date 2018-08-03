@@ -24,6 +24,7 @@ class TestPOMDP(unittest.TestCase):
         o,r = a.do_on(self.s2)
         self.assertTrue(self.s2.is_goal())
         self.assertEqual(1, r)
+        self.assertTrue(o.is_terminal())
 
     def test_available_actions(self):
         a = Action(1, 1)

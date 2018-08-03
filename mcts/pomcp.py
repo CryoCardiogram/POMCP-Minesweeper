@@ -1,11 +1,14 @@
 from mdp.pomdp import POMDPAction, POMDPObservation, POMDPState
+from mdp.history import History
 from mcts.tree import Node
+import scipy.signal as signal
 import math
+import random
 
 params = {
     'K': 50,            # number of particles (size of the belief state space)
     'c': 0,             # exploration / exploitation ratio scalar constant (domain specific)
-    'epsilon': 0.0,     # horizon discount factor
+    'epsilon': 0.0,     # history discount factor
     'gamma': 1,         # reward discount factor
     'R_lo': 0,          # lowest value V(h) reached 
     'R_hi': 1           # highest value V(h) reached
@@ -50,3 +53,57 @@ def UCB1_action_selection(node, greedy=False):
     l = [ (child.a, UCB1(child, node.N)) for child in node.children ]
 
     return max(l, key=lambda t: t[1])
+
+def discount_calc(rewards, discount):
+    """
+    Vectorized discount computation.
+
+    C[i] = R[i] + discount * C[i+1]
+    signal.lfilter(b, a, x, axis=-1, zi=None)
+    a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
+                          - a[1]*y[n-1] - ... - a[N]*y[n-N]
+    """
+    r = rewards[::-1]
+    a = [1, -discount]
+    b = [1]
+    y = signal.lfilter(b, a, x=r)
+    return y[::-1]
+
+def rollout(state, node, depth):
+    """
+    This function simulates the process with a random action policy, 
+    from the given start state until a depth threshold is met (controlled by the epsilon param)
+    Args:
+        state (POMDPState): the start state
+        node (Node): node with current history h
+        depth (int): current depth in the tree
+    Return:
+        float: the final reward of the simulation 
+    """
+    assert isinstance(node, Node)
+    assert isinstance(state, POMDPState)
+
+    def end_rollout(depth, h):
+        assert isinstance(h, History)
+        if params['gamma']**depth < params['epsilon']:
+            return True
+        elif h.last_obs().is_terminal():
+            return True
+        else:
+            return False
+    s = state.clone()
+    h = node.h.clone()
+    d = depth
+    rewards = []
+    while not end_rollout(d, h):
+        # iterative implementation
+        a = random.choice([action for action in h.last_obs().available_actions()])
+        o, r = a.do_on(s)
+        rewards.append(r)
+        d += 1
+        h.add(a, o)
+
+    return sum(discount_calc(rewards, params['gamma']))
+
+
+

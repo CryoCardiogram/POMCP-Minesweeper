@@ -8,10 +8,15 @@ class Observation(POMDPObservation):
     """
     Observations for Minesweeper consist of the knowledge matrix
     """
-    def __init__(self, knowledge):
+    def __init__(self, knowledge, mines):
         self.K = knowledge
+        self.m = mines
     
     def available_actions(self):
+        if self.is_terminal():
+            return 
+            yield   # to avoid TypeError
+
         for row in range(len(self.K)):
             for col in range(len(self.K[0])):
                 val = self.K[row][col]
@@ -34,6 +39,16 @@ class Observation(POMDPObservation):
             s += str(l)
             s += '\n'
         return s 
+    
+    def is_terminal(self):
+        count = 0
+        for row in self.K:
+            for val in row:
+                if val == MINE:
+                    return True # loss
+                count += 1 if val == UNCOV else 0
+        return count == self.m
+
             
 class Action(POMDPAction):
     """
@@ -55,7 +70,7 @@ class Action(POMDPAction):
         assert isinstance(state, State)
         state.probe(self.cell[0], self.cell[1], log=False)
         r = 1 if state.is_goal() else 0
-        return (Observation(state.board.knowledge), r)
+        return (Observation(state.board.knowledge, state.mines), r)
 
 class State(POMDPState):
     """
@@ -74,6 +89,9 @@ class State(POMDPState):
 
     def is_goal(self):
         return self.board.win()
+
+    def clone(self):
+        return State(self.board)
 
     def probe(self, r, c, log=True):
         if log:
