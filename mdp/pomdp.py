@@ -74,20 +74,32 @@ class POMDPState(metaclass=ABCMeta):
         """
         pass
 
-class POMDPAction(metaclass=ABCMeta):
+class POMDPAction(object):
     """
-    Abstract class for an Action of the POMDP model. 
+    Base class for an Action of the POMDP model. An agent can generate empty 
+    actions by creating instances of the class.
     This class has to be extended depending on the application.
     """
-    @abstractmethod
+    
+    def __init__(self, *args, **kwargs):
+        self.__empty = False
+        if len(args) == 0 and len(kwargs) == 0:
+            self.__empty = True
+        else :
+            raise TypeError
+            
     def __eq__(self, oth):
-        pass
+        """
+        method to override
+        """
+        return isinstance(oth, POMDPAction) and oth.__empty 
 
-    @abstractmethod
     def __str__(self):
-        pass
+        """
+        method to override
+        """
+        return "(empty)"
 
-    @abstractmethod
     def do_on(self, state):
         """
         Transition function that performs the current action on the given state. It is used 

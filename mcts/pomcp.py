@@ -63,11 +63,22 @@ def discount_calc(rewards, discount):
     a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
                           - a[1]*y[n-1] - ... - a[N]*y[n-N]
     """
-    r = rewards[::-1]
     a = [1, -discount]
     b = [1]
-    y = signal.lfilter(b, a, x=r)
+    y = signal.lfilter(b, a, x=rewards)
     return y[::-1]
+
+def end_rollout(depth, h):
+    """
+    Predicate to test simulations ending criterion 
+    """
+    assert isinstance(h, History)
+    if params['gamma']**depth < params['epsilon']:
+        return True
+    elif h.last_obs().is_terminal():
+        return True
+    else:
+        return False
 
 def rollout(state, node, depth):
     """
@@ -78,19 +89,11 @@ def rollout(state, node, depth):
         node (Node): node with current history h
         depth (int): current depth in the tree
     Return:
-        float: the final reward of the simulation 
+        float: the final reward of the random playout 
     """
     assert isinstance(node, Node)
     assert isinstance(state, POMDPState)
 
-    def end_rollout(depth, h):
-        assert isinstance(h, History)
-        if params['gamma']**depth < params['epsilon']:
-            return True
-        elif h.last_obs().is_terminal():
-            return True
-        else:
-            return False
     s = state.clone()
     h = node.h.clone()
     d = depth
@@ -99,11 +102,25 @@ def rollout(state, node, depth):
         # iterative implementation
         a = random.choice([action for action in h.last_obs().available_actions()])
         o, r = a.do_on(s)
-        rewards.append(r)
+        rewards.append(float(r))
         d += 1
         h.add(a, o)
 
-    return sum(discount_calc(rewards, params['gamma']))
+    return discount_calc(rewards, params['gamma'])[0]
 
+def simulate(state, node, depth):
+    """
+    This function implement the expansion and the backpropagation phase of a MCTS.
+    During the expansion phase, if it is not the end, new nodes are creates from available actions.
+    Information about the playouts (in rollout) are then updated during the backpropagation phase.
+    """
+    assert isinstance(node, Node)
+    if end_rollout(depth, node.h):
+        return 0
+    
+    if not node.is_intree(node.h):
+        node.create_children()
 
+def search(node):
+    pass
 

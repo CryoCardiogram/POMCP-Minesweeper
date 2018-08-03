@@ -96,7 +96,7 @@ class Node(object):
             node = fringe.pop()
             if len(node.h.actions) <= len(h.actions):
                 if node.h == h:
-                    return True
+                    return node.inTree
                 else :
                     for a in node.children:
                         fringe.append(node.children[a])
