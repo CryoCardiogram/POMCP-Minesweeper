@@ -19,6 +19,9 @@ class History(object):
             return False
         return True
 
+    def __len__(self):
+        return len(self.actions)
+
     def clone (self):
         """
         Return:

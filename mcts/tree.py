@@ -6,7 +6,7 @@ def n_init(h, a):
     """
     Args:
         h (History): previous history
-        a (POMDPAction): next action
+        a (POMDPAction): next action (not in history)
     
     Returns: 
         int: initial N(h,a) value
@@ -18,13 +18,27 @@ def v_init(h,a):
     """
     Args:
         h (History): previous history
-        a (POMDPAction): next action
+        a (POMDPAction): next action (not in history)
     
     Returns: 
         int: initial Q(h,a) value
     """
     o = h.last_obs()
     return o.V_init(h,a)
+
+def create_node(h, a, o):
+    """
+    Args: 
+        h (History): history prior to the node
+        a (POMDPAction): next action (not in history)
+        o (POMDPObservation): next observation (not in history)
+
+    Return:
+        Node: a new tree node whose attributes value comes from domain knowledge
+    """
+    assert isinstance(h, History)
+    hao = h.add(a, 0)
+    return Node(a, hao, v_init(h,a), n_init(h,a), list())
 
 
 class Node(object):
@@ -38,8 +52,8 @@ class Node(object):
         h (History): history to reach the node
         N (int): number of visits 
         V (float): estimation of the Q(h,a) value of the node
-        B (set): collection of K particles (states), representing the current belief of the system
-        children (list): list of child-node, sorted by actions
+        B (list): collection of K particles (states), representing the current belief of the system
+        children (dict): collection of child-node, sorted by actions
         inTree (bool): set to True if the history of the node is up to date 
     """
     def __init__(self, a, h, V, N, B):
@@ -55,7 +69,7 @@ class Node(object):
 
     def create_children(self):
         """
-        Inizialize children nodes with respect to available actions
+        Initialize children nodes with respect to available actions
         for the current history. 
 
         """
@@ -63,15 +77,7 @@ class Node(object):
         for a in o.available_actions():
             # updated history 
             ha = self.h.clone()
-            self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), dict() )} )
-        
-    def add_inTree(self, obs):
-        """
-        Add the current node to the Tree
-        """
-        assert isinstance(obs, POMDPObservation)
-        self.h.add(self.a, obs)
-        self.inTree = True
+            self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), list() )} )
 
     def get_child(self, a):
         """
@@ -94,11 +100,11 @@ class Node(object):
         fringe = [self]
         while fringe:
             node = fringe.pop()
-            if len(node.h.actions) <= len(h.actions):
-                if node.h == h:
+            if len(node.h) <= len(h):
+                if len(node.h) < len(h):
+                     for a in node.children:
+                        fringe.insert(0, node.children[a])
+                elif node.h == h:
                     return node.inTree
-                else :
-                    for a in node.children:
-                        fringe.append(node.children[a])
             else:
                 return False

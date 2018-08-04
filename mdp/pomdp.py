@@ -116,7 +116,7 @@ class POMDPAction(object):
 
 class DecisionProcess(metaclass=ABCMeta):
     """
-    This ABC should be extended to describe meta-parameters of the POMDP. 
+    This ABC should be extended to describe meta-parameters and domain knowledge of the POMDP. 
     """
     def invigoration(self, B):
         """
@@ -135,4 +135,12 @@ class DecisionProcess(metaclass=ABCMeta):
             B (list): belief space approximated by an unweighted bag of states (particles)  
         """
         pass
-    
+
+    @abstractmethod
+    def initial_belief(self):
+        """
+        This function samples a possible start state at random
+        Return:
+            POMDPState: start state
+        """
+        pass
