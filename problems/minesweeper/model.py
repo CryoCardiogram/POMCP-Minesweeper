@@ -109,9 +109,18 @@ class State(POMDPState):
 
 
 class Minesweeper(DecisionProcess):
+    def __init__(self, h, w, m):
+        self.h = h
+        self.w = w
+        self.m = m
+
     def invigoration(self, B):
         # TODO
         pass
+    
+    def initial_belief(self):
+        return State(Board(self.h, self.w, self.m))
+
 
 
 

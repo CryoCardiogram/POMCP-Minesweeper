@@ -41,7 +41,7 @@ class POMDPObservation(metaclass=ABCMeta):
         """
         return 0
     
-    @abstractmethod
+    
     def is_terminal(self):
         """
         Return:

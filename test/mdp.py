@@ -1,7 +1,7 @@
 import unittest
-from minesweeper.board import Board
-from minesweeper.globals import UNCOV, ONE
-from minesweeper.model import State, Action, Observation
+from problems.minesweeper.board import Board
+from problems.minesweeper.globals import UNCOV, ONE
+from problems.minesweeper.model import State, Action, Observation
 from mdp.pomdp import POMDPAction, POMDPObservation, POMDPState
 from mdp.history import History
 
@@ -22,7 +22,7 @@ class TestPOMDP(unittest.TestCase):
     def test_is_goal(self):
         a = Action(1, 1)
         o,r = a.do_on(self.s2)
-        self.assertTrue(self.s2.is_goal())
+        self.assertTrue(self.s2.is_goal()) 
         self.assertEqual(1, r)
         self.assertTrue(o.is_terminal())
 

@@ -79,13 +79,6 @@ class Node(object):
             ha = self.h.clone()
             self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), list() )} )
 
-    def get_child(self, a):
-        """
-        Return:
-            Node: the child node associated with the action a, or None.
-        """ 
-        self.children.get(a)
-
     def is_intree(self, h):
         """
         Search the history h in the tree. 

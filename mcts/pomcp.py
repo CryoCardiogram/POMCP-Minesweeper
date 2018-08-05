@@ -190,22 +190,24 @@ def simulate(state, node, proc=None):
         for a, child in node.children.items():
             proc.invigoration(child.B)
 
-def search(node, proc, max_iter):
+def search(h, proc, max_iter):
     """
     This function implements the UCT algorithm.
 
     Args:
-        node (Node): current root of the tree
+        h (History): history in the current root of the tree
         proc (DecisionProcess): model of domain knowledge of the pomdp
         max_iter (int): maxium number of iterations
 
     Return:
         POMDPAction: the optimal action
     """
-    assert isinstance(node, Node)
+    assert isinstance(h, History)
     assert isinstance(proc, DecisionProcess)
     # init global vars
     start_time = time.time()
+    
+    node =  Node(h.last_action(), h, 0, 0, list())
     root = node 
     ite = 0
     # time out
