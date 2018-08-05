@@ -1,6 +1,6 @@
-from minesweeper.state import State
-from minesweeper.board import Board
-from minesweeper.globals import *
+from .model import State
+from .board import Board
+from .globals import *
 import random, os
 
 class AbstractPlayer(object):

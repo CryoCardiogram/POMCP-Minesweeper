@@ -1,7 +1,7 @@
-from minesweeper.board import Board
+from problems.minesweeper.board import Board
 import random
 import math
-from minesweeper.globals import *
+from problems.minesweeper.globals import *
 from mdp.pomdp import POMDPState, POMDPObservation, POMDPAction, DecisionProcess
 
 class Observation(POMDPObservation):
@@ -70,7 +70,7 @@ class Action(POMDPAction):
         assert isinstance(state, State)
         state.probe(self.cell[0], self.cell[1], log=False)
         r = 1 if state.is_goal() else 0
-        return (Observation(state.board.knowledge, state.mines), r)
+        return (Observation(state.board.knowledge, state.board.m), r)
 
 class State(POMDPState):
     """

@@ -1,7 +1,7 @@
-from minesweeper.globals import *
-from minesweeper.model import State
-from minesweeper.board import Board
-from minesweeper.player import AbstractPlayer
+from .globals import *
+from .model import State
+from .board import Board
+from .player import AbstractPlayer
 
 def play_minesweeper(player, board): 
     assert isinstance(player, AbstractPlayer)

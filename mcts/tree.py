@@ -37,8 +37,8 @@ def create_node(h, a, o):
         Node: a new tree node whose attributes value comes from domain knowledge
     """
     assert isinstance(h, History)
-    hao = h.add(a, 0)
-    return Node(a, hao, v_init(h,a), n_init(h,a), list())
+    h.add(a, o)
+    return Node(a, h, v_init(h,a), n_init(h,a), list())
 
 
 class Node(object):
@@ -88,16 +88,20 @@ class Node(object):
         Args:
             h (History): history to look for. len(h) is greater or equals than 
             the history of the root. 
+        
+        Return:
+            bool: whether there is node containing history h in the tree
         """
         assert isinstance(h, History)
         fringe = [self]
         while fringe:
             node = fringe.pop()
-            if len(node.h) <= len(h):
-                if len(node.h) < len(h):
-                     for a in node.children:
-                        fringe.insert(0, node.children[a])
-                elif node.h == h:
-                    return node.inTree
-            else:
+            if len(node.h) < len(h):
+                for a in node.children:
+                    fringe.insert(0, node.children[a])
+            elif len(node.h) > len(h):
                 return False
+            else:
+                if node.h == h and node.inTree:
+                    return True
+        #return False

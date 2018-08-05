@@ -13,11 +13,14 @@ class History(object):
         return hash(t)
 
     def __eq__(self, other):
-        if self.actions != other.actions:
-            return False
-        elif self.observs != other.observs:
-            return False
-        return True
+        return self.actions == other.actions and self.observs == other.observs
+        
+    def __str__(self):
+        s = ''
+        for i in range(len(self)):
+            s += '\n[{}] a: {} o:{}\n'.format(i, self.actions[i], self.observs[i])
+        return s
+
 
     def __len__(self):
         return len(self.actions)
