@@ -14,7 +14,8 @@ params = {
     'gamma': 1,         # reward discount factor
     'R_lo': 0,          # lowest value V(h) reached 
     'R_hi': 1,          # highest value V(h) reached
-    'timeout_s':120     # timeout for each iteration in seconds
+    'timeout':120,      # timeout for each iteration in seconds
+    'start_time': 0     # start time in seconds
 }
 
 # current root of the node tree
@@ -53,8 +54,10 @@ def UCB1_action_selection(node, greedy=False):
         if greedy:
             return v
         try:
-            v+= params['c']*math.sqrt( math.log(child.N) / N) 
+            v+= params['c']*math.sqrt(math.log(N)  /child.N) 
         except ZeroDivisionError:
+            v = math.inf
+        except ValueError:
             v = math.inf
         finally:
             return v
@@ -73,9 +76,10 @@ def discount_calc(rewards, discount):
     a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
                           - a[1]*y[n-1] - ... - a[N]*y[n-N]
     """
+    r = rewards[::-1]
     a = [1, -discount]
     b = [1]
-    y = signal.lfilter(b, a, x=rewards)
+    y = signal.lfilter(b, a, x=r)
     return y[::-1]
 
 def end_rollout(depth, h):
@@ -84,10 +88,14 @@ def end_rollout(depth, h):
     """
     assert isinstance(h, History)
     if params['gamma']**depth < params['epsilon']:
+        #print("max depth")
         return True
     elif h.last_obs().is_terminal():
+        #print("terminal obs")
         return True
-    elif (time.time() - start_time) >= params['timeout']:
+    elif (time.time() - params['start_time']) >= params['timeout']:
+        print("time out")
+        print(time.time() - params['start_time'])
         return True
     else:
         return False
@@ -117,21 +125,21 @@ def rollout(state, node, depth):
         rewards.append(float(r))
         d += 1
         h.add(a, o)
-
+    #print(rewards)
     return discount_calc(rewards, params['gamma'])[0]
 
 def simulate(state, node, proc=None):
     """
-    Iterative implementations of simulative part of an MCTS, adapted to partial observability. This function builds 
-    a whole PO-MCTS starting from the root node.
+    Iterative implementation of an MCTS simulation step, adapted to partial observability. This function builds 
+    a whole PO-MCTS starting from the root node, alternating between the following phases.
 
-    Expansion: if it is not the end, new nodes are creates from available actions.
+    Expansion: if the termination criterion is not met, new nodes are created from  currently available actions.
 
-    Selection: a node is selected among the children, evaluated with the UCB1 function.
+    Selection: select the best node among the children evaluated with their UCB1 value.
 
-    Simulation: a playout is simulated starting from the selected node 
+    Simulation: simulate a playout starting from the selected node 
 
-    Backpropagation: Information about the playouts (in rollout) are then updated during this phase.
+    Backpropagation: update statistics about the playouts (in rollout) up to the root.
 
     Args:
         state (POMDPState): state sampled either from the initial state distribution or from the belief space
@@ -205,13 +213,13 @@ def search(h, proc, max_iter):
     assert isinstance(h, History)
     assert isinstance(proc, DecisionProcess)
     # init global vars
-    start_time = time.time()
+    params['start_time'] = time.time()
     
     node =  Node(h.last_action(), h, 0, 0, list())
     root = node 
     ite = 0
     # time out
-    time_remaining =  ite < max_iter and (time.time() - start_time) < params['timeout']
+    time_remaining =  ite < max_iter and (time.time() - params['start_time']) < params['timeout']
     while time_remaining:
         s = proc.initial_belief()
         if len(root.h) != 0:

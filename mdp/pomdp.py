@@ -47,7 +47,7 @@ class POMDPObservation(metaclass=ABCMeta):
         Return:
             bool: True if there is no available actions for this history
         """
-        pass
+        return False
 
 
     @abstractmethod

@@ -79,7 +79,7 @@ class Observation(POMDPObservation):
                 return False
 
     def V_init(self, h, a):
-        return 100 if self.__is_pref_action(h, a) else 0
+        return 12 if self.__is_pref_action(h, a) else 0
     
     def N_init(self, h, a):
         return 5 if self.__is_pref_action(h, a) else 0
