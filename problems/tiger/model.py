@@ -100,6 +100,8 @@ class Action(POMDPAction):
             return "listening"
     
     def __eq__(self,o):
+        if not isinstance(o, Action):
+            return False 
         return self.listen == o.listen and self.d == o.d
     
     def __hash__(self):

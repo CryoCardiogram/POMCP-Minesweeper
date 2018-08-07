@@ -126,7 +126,7 @@ def rollout(state, node, depth):
         d += 1
         h.add(a, o)
     #print(rewards)
-    return discount_calc(rewards, params['gamma'])[0]
+    return discount_calc(rewards, params['gamma'])[0] if len(rewards) > 0 else 0
 
 def simulate(state, node, proc=None):
     """
@@ -150,7 +150,7 @@ def simulate(state, node, proc=None):
     assert isinstance(node, Node)
     depth = 0
     rewards = []
-
+    root = node
     fringe = [(node, depth)] # descending down the tree
     backprop = [] # climbing up the tree
     s = state.clone()
@@ -169,16 +169,17 @@ def simulate(state, node, proc=None):
             backprop.append((nod, d, s.clone()))
             rewards.append(rollout(s, nod, d))
             continue
-        
         backprop.append((nod, d, s.clone()))
 
         # Selection
-        a = UCB1_action_selection(node)[0]
+        a,u = UCB1_action_selection(node)
     
         # Simulation
         o, r = a.do_on(s)
-        hao = nod.h.clone().add(a,o)
+        hao = nod.h.clone()
+        hao.add(a,o)
         node_hao = create_node(hao, a, o)
+        nod.children[a] = node_hao
         rewards.append(float(r))
         fringe.append((node_hao, d+1))
 
@@ -188,9 +189,10 @@ def simulate(state, node, proc=None):
         nod_a = backprop[-i + 1][0] # simulated child 
         R = discount_calc(rewards[d::], params['gamma'])[0]
         nod.B.append(s)
-        nod.N += 1
+        #nod.N += 1
         nod_a.N += 1
         nod_a.V += (R - nod_a.V) / nod_a.N 
+    backprop[0][0].N += 1
     
     # particles invigoration
     if proc:
@@ -219,13 +221,15 @@ def search(h, proc, max_iter):
     root = node 
     ite = 0
     # time out
-    time_remaining =  ite < max_iter and (time.time() - params['start_time']) < params['timeout']
-    while time_remaining:
+    def time_remaining():
+        return ite < max_iter and (time.time() - params['start_time']) < params['timeout']
+    
+    while time_remaining():
         s = proc.initial_belief()
-        if len(root.h) != 0:
+        if len(root.h) > 1:
             s = random.choice(root.B)
         simulate(s,node , proc)
+        ite+=1   
     # greedy action selection
     return UCB1_action_selection(root, greedy=True)[0]
-        
-
+    

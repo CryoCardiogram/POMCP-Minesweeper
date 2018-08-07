@@ -117,7 +117,7 @@ class TestPOMCP(unittest.TestCase):
         dis = 0.9
         self.assertEqual(discount_calc(r, dis)[0], r[0] + dis * (r[1] + dis* (r[2]) ))
 
-    def test_end_rollout(self):
+    def test_rollout(self):
         params['gamma'] = 0.9
         params['epsilon'] = 0.9
         params['start_time'] = time.time()
@@ -125,6 +125,7 @@ class TestPOMCP(unittest.TestCase):
         #print(r)
         self.assertIsNotNone(r)
 
+    def test_end_rollout(self):
         params['epsilon'] = 0.000000001 # many  steps
         params['gamma'] = 0.99999
         params['timeout'] = 3  
@@ -136,3 +137,93 @@ class TestPOMCP(unittest.TestCase):
 
         t = Timer(stmt=procedure)   
         self.assertAlmostEqual(t.timeit(1), params['timeout'], delta=1)
+
+    def test_simulate_expansion(self):
+        root = create_node(History(), POMDPAction(), Observation())
+        self.root1 = root
+        params.update({
+            'start_time': time.time(),
+            'gamma': 0.5,
+            'epsilon': 0.2,
+            'timeout': 3
+        })
+        simulate(self.start, root)
+        self.assertEqual(len(root.children), 3)
+        self.assertEqual(root.N, 0)
+
+    def test_simulate_iteration_fulltree(self):
+        self.root.N = 2
+        self.root.V = 4/3
+        self.listen_child.N = 2
+        self.listen_child.V = 4
+        for a, c in self.listen_child.children.items():
+            c.N += 1
+        # 1st iteration
+        params.update({
+            'start_time': time.time(),
+            'gamma': 0.5,
+            'epsilon': 0.26 ,    # depth 2 
+            'timeout': 3,
+            'c': 2
+        })
+        simulate(self.start, self.root)
+        ## left-door child (history: empty-left [gauche in french]) should have been chosen (exploration)
+        eg = self.root.children[Action(LEFT)]
+        self.assertEqual(len(eg.children), 3, msg="wrong child 1st iteration")
+        self.assertGreater(eg.N, 0) # with prefered action, will be higher than 1
+        # value should be high
+        self.assertGreater(eg.V, 1)
+
+        # 2nd iteration
+        ## new sample from root belief space
+        sr = State(RIGHT)
+        params['start_time']: time.time()
+        simulate(sr, self.root)
+        ## right-door child chosen (exploration)
+        er = self.root.children[Action(direction=RIGHT)]
+        self.assertEqual(len(er.children), 3, msg='wrong child 2nd iteration')
+        self.assertGreater(er.N, 0)
+        # value should be high
+        self.assertGreater(er.V, 1)
+
+        # if backpropagation works, root.N should be 4
+        self.assertEqual(self.root.N, 4, msg='backpropagation fails')
+
+        # 3rd iteration
+        params['start_time']: time.time()
+        sl = State(LEFT)
+        simulate(sl, self.root)
+        # simply test backpropagation for now
+        self.assertEqual(self.root.N, 5)
+
+    def test_search(self):
+        self.root.N = 2
+        self.root.V = 4/3
+        self.listen_child.N = 2
+        self.listen_child.V = 4
+        for a, c in self.listen_child.children.items():
+            c.N += 1
+        params.update({
+            'gamma': 0.5,
+            'epsilon': 0.26 ,    # depth 2 
+            'timeout': 5,
+            'c': 2
+        })
+
+        # timeout
+        def proc():
+            search(self.root.h,self.pomdp, 1000000)
+
+        def proc2():
+            params['timeout']=30
+            search(self.root.h,self.pomdp, 10)
+
+        t = Timer(stmt=proc)
+        self.assertAlmostEqual(t.timeit(1), params['timeout'], delta=1)
+
+        t = Timer(stmt=proc2)
+        self.assertLessEqual(t.timeit(1), 100)
+
+        a = search(self.root.h,self.pomdp, 100)
+        self.assertTrue(isinstance(a, POMDPAction))
+
