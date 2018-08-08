@@ -66,7 +66,7 @@ class Action(POMDPAction):
     def __eq__(self, oth):
         if not isinstance(oth, Action):
             return False
-        return self.cell == oth.cel
+        return self.cell == oth.cell
     
     def __hash__(self):
         return hash(self.cell)
@@ -74,7 +74,7 @@ class Action(POMDPAction):
     def do_on(self, state):
         assert isinstance(state, State)
         state.probe(self.cell[0], self.cell[1], log=False)
-        r = 1 if state.is_goal() else 0
+        r = 1.0 if state.is_goal() else 0.0
         return (Observation(state.board.knowledge, state.board.m), r)
 
 class State(POMDPState):

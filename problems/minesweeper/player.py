@@ -23,8 +23,8 @@ class MCPlayer(AbstractPlayer):
         params['timeout']= timeout
         params.update({
             'timeout': timeout,
-            'gamma' : 1, # minesweeper is a finite horizon game
-            'epsilon': 0
+            'gamma' : 1.0, # minesweeper is a finite horizon game
+            'epsilon': 0.0
         })
         self.h = History()
         self.last_action = POMDPAction()
@@ -41,7 +41,6 @@ class MCPlayer(AbstractPlayer):
         # launch UCT to select next best action based on current history
         a = search(self.h, self.dom_kno, self.max_iter)
         self.last_action = a
-        print(self.h)
         assert isinstance(a, Action)
         return a.cell
 

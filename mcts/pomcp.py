@@ -164,6 +164,7 @@ def simulate(state, node, proc=None):
 
         if not root.is_intree(nod.h):
             # Expansion
+            print("expansion d:{}".format(d))
             nod.create_children()
             nod.inTree = True
             backprop.append((nod, d, s.clone()))
@@ -178,27 +179,26 @@ def simulate(state, node, proc=None):
         o, r = a.do_on(s)
         hao = nod.h.clone()
         hao.add(a,o)
-        node_hao = create_node(hao, a, o)
-        nod.children[a] = node_hao
+        nod.children[a] = create_node(hao, a, o)
         rewards.append(float(r))
-        fringe.append((node_hao, d+1))
-
+        fringe.append((nod.children[a], d+1))
+    
     # Backpropagation
-    for i in range(2, len(backprop)-1, 1):
+    for i in range(1, len(backprop)+1):
         nod, d, s = backprop[-i] # parent
         nod_a = backprop[-i + 1][0] # simulated child 
         R = discount_calc(rewards[d::], params['gamma'])[0]
         nod.B.append(s)
+        #print("d{}, a:{}, bsize: {}".format(d, nod.a, len(node.B)))
         nod_a.N += 1
         nod_a.V += (R - nod_a.V) / nod_a.N 
-    root_node = backprop[0][0] 
-    root_node.N += 1
-    root_node.B.append(backprop[0][2])
     
     # particles invigoration
     if proc:
         assert isinstance(proc, DecisionProcess)
         for a, child in node.children.items():
+            #if len(child.B):
+                #print("child {}, bsize: {}".format(a, len(child.B)))
             proc.invigoration(child.B)
 
 def search(h, proc, max_iter, clean=False):
@@ -219,7 +219,7 @@ def search(h, proc, max_iter, clean=False):
     # init global vars
     params['start_time'] = time.time()
     global root
-    
+
     # define the new root node
     if clean:
         # start from scratch
@@ -227,8 +227,10 @@ def search(h, proc, max_iter, clean=False):
         root = node 
     else :
         # find the new root among existing nodes
-        node = root.find(h)
-        root = node if node else Node(h.last_action(), h, 0, 0, list())
+        #try:
+        root = root.children[h.last_action()] if len(h) > 1 else Node(h.last_action(), h, 0, 0, list())
+        #except KeyError:
+        #    root = Node(h.last_action(), h, 0, 0, list())
     
     ite = 0
     # time out
@@ -242,5 +244,7 @@ def search(h, proc, max_iter, clean=False):
         simulate(s, root , proc)
         ite+=1   
     # greedy action selection
+    print(len(root.children))
     return UCB1_action_selection(root, greedy=True)[0]
+    
     

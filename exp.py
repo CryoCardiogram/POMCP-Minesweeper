@@ -17,7 +17,7 @@ monte_carlo = MCPlayer(10000, 5)
 
 
 print("let's play")
-w, s = play_minesweeper(p, b)
+w, s = play_minesweeper(monte_carlo, b)
 print(w)
 print(s)
 for l in b.minefield :

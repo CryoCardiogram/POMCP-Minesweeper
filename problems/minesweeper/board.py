@@ -91,7 +91,7 @@ class Board(object):
             
         self.knowledge[r][c] = self.minefield[r][c]
         self.nUncov -= 1
-        if log:
+        if log and self.minefield[r][c] != NOTHING:
             print("_" * 25),
             for row in self.knowledge:
                 print(row)
