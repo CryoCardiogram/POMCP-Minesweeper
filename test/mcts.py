@@ -140,7 +140,7 @@ class TestPOMCP(unittest.TestCase):
 
     def test_simulate_expansion(self):
         root = create_node(History(), POMDPAction(), Observation())
-        self.root1 = root
+        #self.root1 = root
         params.update({
             'start_time': time.time(),
             'gamma': 0.5,
@@ -149,7 +149,7 @@ class TestPOMCP(unittest.TestCase):
         })
         simulate(self.start, root)
         self.assertEqual(len(root.children), 3)
-        self.assertEqual(root.N, 0)
+        self.assertEqual(root.N, 1)
 
     def test_simulate_iteration_fulltree(self):
         self.root.N = 2

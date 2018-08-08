@@ -59,12 +59,17 @@ class Action(POMDPAction):
         self.cell = (r,c)
 
     def __str__(self):
-        return "({},{})".format( self.cell[0], self.cell[1])
+        return str(self.cell)
 
     __repr__ = __str__
     
     def __eq__(self, oth):
-        return self.cell == oth.cell
+        if not isinstance(oth, Action):
+            return False
+        return self.cell == oth.cel
+    
+    def __hash__(self):
+        return hash(self.cell)
     
     def do_on(self, state):
         assert isinstance(state, State)
@@ -102,9 +107,16 @@ class State(POMDPState):
         if val is NOTHING:
             if log:
                 print("autoprobe")
-            for R,C in self.board.neighbourhood(r, c):
-                self.board.update(r,c, log = False)
-
+            autoprob = [ cell for cell in self.board.neighbourhood(r,c) ]
+            done = set()
+            while autoprob:
+                R, C = autoprob.pop()
+                v = self.board.update(R, C, log = False)
+                done.add((R,C))
+                if v is NOTHING:
+                    for cell in self.board.neighbourhood(R, C):
+                        if cell not in done:
+                            autoprob.append(cell)
         return val
 
 
@@ -120,7 +132,4 @@ class Minesweeper(DecisionProcess):
     
     def initial_belief(self):
         return State(Board(self.h, self.w, self.m))
-
-
-
-
+        

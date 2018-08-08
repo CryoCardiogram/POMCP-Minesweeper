@@ -189,10 +189,11 @@ def simulate(state, node, proc=None):
         nod_a = backprop[-i + 1][0] # simulated child 
         R = discount_calc(rewards[d::], params['gamma'])[0]
         nod.B.append(s)
-        #nod.N += 1
         nod_a.N += 1
         nod_a.V += (R - nod_a.V) / nod_a.N 
-    backprop[0][0].N += 1
+    root_node = backprop[0][0] 
+    root_node.N += 1
+    root_node.B.append(backprop[0][2])
     
     # particles invigoration
     if proc:
@@ -200,7 +201,7 @@ def simulate(state, node, proc=None):
         for a, child in node.children.items():
             proc.invigoration(child.B)
 
-def search(h, proc, max_iter):
+def search(h, proc, max_iter, clean=False):
     """
     This function implements the UCT algorithm.
 
@@ -208,6 +209,7 @@ def search(h, proc, max_iter):
         h (History): history in the current root of the tree
         proc (DecisionProcess): model of domain knowledge of the pomdp
         max_iter (int): maxium number of iterations
+        clean (bool): toggle to reset the tree
 
     Return:
         POMDPAction: the optimal action
@@ -216,9 +218,18 @@ def search(h, proc, max_iter):
     assert isinstance(proc, DecisionProcess)
     # init global vars
     params['start_time'] = time.time()
+    global root
     
-    node =  Node(h.last_action(), h, 0, 0, list())
-    root = node 
+    # define the new root node
+    if clean:
+        # start from scratch
+        node =  Node(h.last_action(), h, 0, 0, list())
+        root = node 
+    else :
+        # find the new root among existing nodes
+        node = root.find(h)
+        root = node if node else Node(h.last_action(), h, 0, 0, list())
+    
     ite = 0
     # time out
     def time_remaining():
@@ -228,7 +239,7 @@ def search(h, proc, max_iter):
         s = proc.initial_belief()
         if len(root.h) > 1:
             s = random.choice(root.B)
-        simulate(s,node , proc)
+        simulate(s, root , proc)
         ite+=1   
     # greedy action selection
     return UCB1_action_selection(root, greedy=True)[0]

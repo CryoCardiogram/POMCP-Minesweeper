@@ -1,6 +1,6 @@
-from minesweeper.board import Board
-from minesweeper.player import RandomPlayer
-from minesweeper.play import play_minesweeper
+from problems.minesweeper.board import Board
+from problems.minesweeper.player import RandomPlayer, MCPlayer
+from problems.minesweeper.play import play_minesweeper
 
 
 """ def train_Qplayer(rounds, qplayer):
@@ -9,8 +9,9 @@ from minesweeper.play import play_minesweeper
     for r in range(rounds):
         qplayer.train(Board(4,4,4)) """
 
-b = Board(9,9,10)
+b = Board(4,4,1)
 p = RandomPlayer()
+monte_carlo = MCPlayer(10000, 5)
 #q = QPlayer(1)
 #train_Qplayer(1000, q)
 

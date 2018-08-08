@@ -93,6 +93,9 @@ class POMDPAction(object):
         method to override
         """
         return isinstance(oth, POMDPAction) and oth.__empty 
+    
+    def __hash__(self):
+        return hash(self.__empty)
 
     def __str__(self):
         """

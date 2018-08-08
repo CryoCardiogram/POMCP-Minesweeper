@@ -1,15 +1,57 @@
-from .model import State
+import random
+import os
+from .model import State, Observation, Action, Minesweeper
 from .board import Board
-from .globals import *
-import random, os
+from .globals import MINE
+from abc import ABCMeta, abstractmethod
+from mcts.pomcp import search, params
+from mdp.history import History
+from mdp.pomdp import POMDPAction
 
 class AbstractPlayer(object):
+    @abstractmethod
     def next_action(self, state):
         pass
 
 class RandomPlayer(AbstractPlayer):
     def next_action(self, state):
         return (random.choice(range(state.board.h)), random.choice(range(state.board.w)) )
+
+class MCPlayer(AbstractPlayer):
+    def __init__(self, max_iter, timeout):
+        self.max_iter = max_iter
+        params['timeout']= timeout
+        params.update({
+            'timeout': timeout,
+            'gamma' : 1, # minesweeper is a finite horizon game
+            'epsilon': 0
+        })
+        self.h = History()
+        self.last_action = POMDPAction()
+        self.first = True
+
+    def next_action(self, state):
+        # init domain knowledge
+        if self.first:
+            self.dom_kno = Minesweeper(state.board.h, state.board.w, state.board.m)
+            self.first = False
+        # update history with last action - observation
+        o = Observation(state.board.knowledge, state.board.m)
+        self.h.add(self.last_action, o)
+        # launch UCT to select next best action based on current history
+        a = search(self.h, self.dom_kno, self.max_iter)
+        self.last_action = a
+        print(self.h)
+        assert isinstance(a, Action)
+        return a.cell
+
+
+        
+
+
+
+
+
 """
 class QPlayer(AbstractPlayer):
     def __init__(self, ind):

@@ -78,20 +78,12 @@ class Node(object):
             # updated history 
             ha = self.h.clone()
             self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), list() )} )
-
-    def is_intree(self, h):
+        
+    def find(self, h):
         """
-        Search the history h in the tree. 
         Explore the tree in BFS and stop the search as soon as the size of histories 
         in the tree become larger than len(h)
-
-        Args:
-            h (History): history to look for. len(h) is greater or equals than 
-            the history of the root. 
-        
-        Return:
-            bool: whether there is node containing history h in the tree
-        """
+        """     
         assert isinstance(h, History)
         fringe = [self]
         while fringe:
@@ -100,8 +92,24 @@ class Node(object):
                 for a in node.children:
                     fringe.insert(0, node.children[a])
             elif len(node.h) > len(h):
-                return False
+                return None
             else:
                 if node.h == h and node.inTree:
-                    return True
-        #return False
+                    return node
+
+    def is_intree(self, h):
+        """
+        Search the history h in the tree. 
+    
+        Args:
+            h (History): history to look for. len(h) is greater or equals than 
+            the history of the root. 
+        
+        Return:
+            bool: whether there is node containing history h in the tree
+        """
+        if self.find(h):
+            return True 
+        return False
+        
+        

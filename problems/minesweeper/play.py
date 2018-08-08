@@ -9,14 +9,10 @@ def play_minesweeper(player, board):
     steps = 0
     game_over = False
     win = 0
-
     state = State(board)
-    # first move (first cell is always safe)
-    #state.probe(1)
+
     while not game_over:
         r,c = player.next_action(state)
-        print(r)
-        print(c)
         val = state.probe(r,c)
 
         if val is MINE: 
@@ -26,6 +22,5 @@ def play_minesweeper(player, board):
             print("WIN\n")
             game_over = True
             win = 1
-
         steps+=1
     return (win, steps)
