@@ -15,11 +15,11 @@ params = {
     'R_lo': 0,          # lowest value V(h) reached 
     'R_hi': 1,          # highest value V(h) reached
     'timeout':120,      # timeout for each iteration in seconds
-    'start_time': 0     # start time in seconds
+    'start_time': 0,    # start time in seconds
+    'max_depth': 20,    # max depth
+    'root': Node(POMDPAction(), History(), 0, 0, list())
 }
 
-# current root of the node tree
-root = Node(POMDPAction(), History(), 0, 0, list())
 
 # start time
 start_time = 0
@@ -87,7 +87,7 @@ def end_rollout(depth, h):
     Predicate to test simulations ending criterion 
     """
     assert isinstance(h, History)
-    if params['gamma']**depth < params['epsilon']:
+    if params['gamma']**depth < params['epsilon'] or depth >= params['max_depth']:
         #print("max depth")
         return True
     elif h.last_obs().is_terminal():
@@ -157,20 +157,22 @@ def simulate(state, node, proc=None):
     max_d = 0
     while fringe:
         nod, d = fringe.pop()
-        max_d = d if d >= max_d else max_d
+        
 
-        if end_rollout(depth, nod.h):
+        if end_rollout(d, nod.h):
             rewards.append(0)
             backprop.append((nod, d, s.clone()))
             continue
 
+        max_d = d if d >= max_d else max_d
+
         if not root.is_intree(nod.h):
             # Expansion
             print("expansion d:{} a: {}".format(d, nod.a))
-            for a, c in root.children.items():
-                print("child {}".format(a))
-                print(c.h)
-                print(c.h == nod.h and c.inTree)
+            #for a, c in root.children.items():
+            #    print("child {}".format(a))
+            #    print(c.h)
+            #    print(c.h == nod.h and c.inTree)
             nod.create_children()
             nod.inTree = True
             backprop.append((nod, d, s.clone()))
@@ -179,14 +181,14 @@ def simulate(state, node, proc=None):
         backprop.append((nod, d, s.clone()))
 
         # Selection
-        a,u = UCB1_action_selection(node)
-    
+        a,u = UCB1_action_selection(nod)
+        print("selection d:{} a: {}".format(d, a))
         # Simulation
         o, r = a.do_on(s)
-        hao = nod.h.clone()
-        #hao.add(a,o)
-        nod.children[a] = create_node(hao, a, o)
-        #nod.children[a].h.add(a,o)
+        #hao = nod.h.clone()
+        #nod.children[a] = create_node(hao, a, o)
+        nod.children[a].h.add(a,o)
+        #nod.children[a].inTree = True
         rewards.append(float(r))
         fringe.append((nod.children[a], d+1))
     
@@ -227,20 +229,15 @@ def search(h, proc, max_iter, clean=False):
     assert isinstance(proc, DecisionProcess)
     # init global vars
     params['start_time'] = time.time()
-    global root
+    root = params['root']
+
     # define the new root node
+    print("current root: {}, len(h): {}".format(h.actions[-1], len(h)))
+    treeroot = root.children[h.actions[-1]] if len(h) > 1 else Node(h.last_action(), h, 0, 0, list())
     if clean:
         # start from scratch
         node =  Node(h.last_action(), h, 0, 0, list())
-        root = node 
-    else :
-        # find the new root among existing nodes
-        #try:
-        print("current root: {}, len(h): {}".format(h.last_action(), len(h)))
-        root = root.children[h.last_action()] if len(h) > 1 else Node(h.last_action(), h, 0, 0, list())
-        #except KeyError:
-        #    root = Node(h.last_action(), h, 0, 0, list())
-    
+        treeroot = node     
     ite = 0
     # time out
     def time_remaining():
@@ -248,13 +245,14 @@ def search(h, proc, max_iter, clean=False):
     
     while time_remaining():
         s = proc.initial_belief()
-        if len(root.h) > 1:
+        if len(treeroot.h) > 1:
             s = random.choice(root.B)
-        simulate(s, root , proc)
+        simulate(s, treeroot , proc)
         ite+=1   
     # greedy action selection
-    a = UCB1_action_selection(root, greedy=True)[0]
-    print("next belief size: {}".format(len(root.children[a].B)))
+    a = UCB1_action_selection(treeroot, greedy=True)[0]
+    params['root'] = treeroot
+    print("next belief size: {}".format(len(treeroot.children[a].B)))
     return a
     
     

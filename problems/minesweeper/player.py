@@ -38,6 +38,7 @@ class MCPlayer(AbstractPlayer):
         # update history with last action - observation
         o = Observation(state.board.clone().knowledge, state.board.m)
         self.h.add(self.last_action, o)
+        print(self.h)
         # launch UCT to select next best action based on current history
         a = search(self.h.clone(), self.dom_kno, self.max_iter)
         self.last_action = a

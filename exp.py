@@ -9,9 +9,9 @@ from problems.minesweeper.play import play_minesweeper
     for r in range(rounds):
         qplayer.train(Board(4,4,4)) """
 
-b = Board(3,2,2)
+b = Board(4,4,4)
 p = RandomPlayer()
-monte_carlo = MCPlayer(10, 0.5)
+monte_carlo = MCPlayer(1000, 0.5)
 #q = QPlayer(1)
 #train_Qplayer(1000, q)
 
