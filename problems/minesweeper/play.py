@@ -14,11 +14,11 @@ def play_minesweeper(player, board):
     while not game_over:
         r,c = player.next_action(state)
         val = state.probe(r,c)
-
+        print(board)
         if val is MINE: 
             game_over = True
             print("GAME OVER\n")
-        elif board.win():
+        elif state.is_goal():
             print("WIN\n")
             game_over = True
             win = 1

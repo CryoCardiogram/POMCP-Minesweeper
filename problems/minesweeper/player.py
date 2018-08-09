@@ -36,10 +36,10 @@ class MCPlayer(AbstractPlayer):
             self.dom_kno = Minesweeper(state.board.h, state.board.w, state.board.m)
             self.first = False
         # update history with last action - observation
-        o = Observation(state.board.knowledge, state.board.m)
+        o = Observation(state.board.clone().knowledge, state.board.m)
         self.h.add(self.last_action, o)
         # launch UCT to select next best action based on current history
-        a = search(self.h, self.dom_kno, self.max_iter)
+        a = search(self.h.clone(), self.dom_kno, self.max_iter)
         self.last_action = a
         assert isinstance(a, Action)
         return a.cell

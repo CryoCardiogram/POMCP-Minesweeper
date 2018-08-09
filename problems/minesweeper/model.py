@@ -96,17 +96,17 @@ class State(POMDPState):
         return self.board.win()
 
     def clone(self):
-        return State(self.board)
+        return State(self.board.clone())
 
     def probe(self, r, c, log=True):
         if log:
-            print("({},{})".format(r, c))
+            print((r, c))
         val = self.board.update(r, c, log=log)
 
         # auto reveal of empty cells
         if val is NOTHING:
-            if log:
-                print("autoprobe")
+            #if log:
+            #    print("autoprobe")
             autoprob = [ cell for cell in self.board.neighbourhood(r,c) ]
             done = set()
             while autoprob:

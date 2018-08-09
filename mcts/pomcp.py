@@ -94,8 +94,8 @@ def end_rollout(depth, h):
         #print("terminal obs")
         return True
     elif (time.time() - params['start_time']) >= params['timeout']:
-        print("time out")
-        print(time.time() - params['start_time'])
+        #print("time out")
+        #print(time.time() - params['start_time'])
         return True
     else:
         return False
@@ -154,8 +154,10 @@ def simulate(state, node, proc=None):
     fringe = [(node, depth)] # descending down the tree
     backprop = [] # climbing up the tree
     s = state.clone()
+    max_d = 0
     while fringe:
         nod, d = fringe.pop()
+        max_d = d if d >= max_d else max_d
 
         if end_rollout(depth, nod.h):
             rewards.append(0)
@@ -180,6 +182,8 @@ def simulate(state, node, proc=None):
         hao = nod.h.clone()
         hao.add(a,o)
         nod.children[a] = create_node(hao, a, o)
+        print(len(nod.children))
+        #nod.children[a].h.add(a,o)
         rewards.append(float(r))
         fringe.append((nod.children[a], d+1))
     
@@ -189,10 +193,12 @@ def simulate(state, node, proc=None):
         nod_a = backprop[-i + 1][0] # simulated child 
         R = discount_calc(rewards[d::], params['gamma'])[0]
         nod.B.append(s)
-        #print("d{}, a:{}, bsize: {}".format(d, nod.a, len(node.B)))
+        #print("d{}, h:{}, bsize: {}".format(d, nod.h, len(node.B)))
         nod_a.N += 1
         nod_a.V += (R - nod_a.V) / nod_a.N 
     
+    print("root belief size: {}".format(len(root.B)))
+    print("max depth:{}".format(max_d))
     # particles invigoration
     if proc:
         assert isinstance(proc, DecisionProcess)
@@ -219,7 +225,7 @@ def search(h, proc, max_iter, clean=False):
     # init global vars
     params['start_time'] = time.time()
     global root
-
+    print("History {}".format(h))
     # define the new root node
     if clean:
         # start from scratch
@@ -244,7 +250,8 @@ def search(h, proc, max_iter, clean=False):
         simulate(s, root , proc)
         ite+=1   
     # greedy action selection
-    print(len(root.children))
-    return UCB1_action_selection(root, greedy=True)[0]
+    a = UCB1_action_selection(root, greedy=True)[0]
+    print("next belief size: {}".format(len(root.children[a].B)))
+    return a
     
     

@@ -91,14 +91,24 @@ class Board(object):
             
         self.knowledge[r][c] = self.minefield[r][c]
         self.nUncov -= 1
-        if log and self.minefield[r][c] != NOTHING:
-            print("_" * 25),
-            for row in self.knowledge:
-                print(row)
-            print("_" * 25),
-
+        
         return self.minefield[r][c]
 
+    def __str__(self):
+        s = ''
+        s += '_'* 25 + '\n'
+        for row in self.knowledge:
+            s += str(row) + '\n'
+        s += '_' * 25
+        return s
 
     def win(self):
         return self.nUncov == self.m
+
+    def clone(self):
+        b = Board(self.h, self.w, self.m)
+        b.minefield = [list(col) for col in self.minefield]
+        b.knowledge = [list(col) for col in self.knowledge]
+        b.nUncov = self.nUncov
+        b.firstmove = self.firstmove
+        return b
