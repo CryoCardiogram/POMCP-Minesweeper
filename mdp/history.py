@@ -43,6 +43,7 @@ class History(object):
         assert isinstance(observation, POMDPObservation)
         self.actions.insert(0, action)
         self.observs.insert(0, observation)
+        assert self.actions[0] == action
     
     def last_action(self):
         a = self.actions[0]

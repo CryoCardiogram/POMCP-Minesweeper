@@ -38,7 +38,9 @@ def create_node(h, a, o):
     """
     assert isinstance(h, History)
     h.add(a, o)
-    return Node(a, h, v_init(h,a), n_init(h,a), list())
+    n = Node(a, h, v_init(h,a), n_init(h,a), list())
+    n.inTree = True
+    return n
 
 
 class Node(object):

@@ -166,7 +166,11 @@ def simulate(state, node, proc=None):
 
         if not root.is_intree(nod.h):
             # Expansion
-            print("expansion d:{}".format(d))
+            print("expansion d:{} a: {}".format(d, nod.a))
+            for a, c in root.children.items():
+                print("child {}".format(a))
+                print(c.h)
+                print(c.h == nod.h and c.inTree)
             nod.create_children()
             nod.inTree = True
             backprop.append((nod, d, s.clone()))
@@ -180,9 +184,8 @@ def simulate(state, node, proc=None):
         # Simulation
         o, r = a.do_on(s)
         hao = nod.h.clone()
-        hao.add(a,o)
+        #hao.add(a,o)
         nod.children[a] = create_node(hao, a, o)
-        print(len(nod.children))
         #nod.children[a].h.add(a,o)
         rewards.append(float(r))
         fringe.append((nod.children[a], d+1))
@@ -225,7 +228,6 @@ def search(h, proc, max_iter, clean=False):
     # init global vars
     params['start_time'] = time.time()
     global root
-    print("History {}".format(h))
     # define the new root node
     if clean:
         # start from scratch
@@ -234,6 +236,7 @@ def search(h, proc, max_iter, clean=False):
     else :
         # find the new root among existing nodes
         #try:
+        print("current root: {}, len(h): {}".format(h.last_action(), len(h)))
         root = root.children[h.last_action()] if len(h) > 1 else Node(h.last_action(), h, 0, 0, list())
         #except KeyError:
         #    root = Node(h.last_action(), h, 0, 0, list())
