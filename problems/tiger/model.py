@@ -68,7 +68,7 @@ class Observation(POMDPObservation):
     
     def __is_pref_action(self, h, a):
         """
-        Prefered actions: open the door from which emanes the noise
+        Prefered actions: open the door from which comes the noise
         """
         if len(h) == 0 or not isinstance(a, Action):
             return False

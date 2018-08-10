@@ -66,7 +66,7 @@ def UCB1_action_selection(node, greedy=False):
     l = [ (a, UCB1(child, node.N)) for a, child in node.children.items() ]
     if greedy:
         print("tree history {}".format(node.h))
-        print(l)
+        print( [(a, (child.N, child.V)) for a, child in node.children.items() ]  )
     return max(l, key=lambda t: t[1])
 
 def discount_calc(rewards, discount):

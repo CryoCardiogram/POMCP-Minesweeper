@@ -1,7 +1,7 @@
 from problems.minesweeper.board import Board
 import random
 import math
-from problems.minesweeper.globals import *
+from problems.minesweeper.globals import UNCOV, MINE, NOTHING
 from mdp.pomdp import POMDPState, POMDPObservation, POMDPAction, DecisionProcess
 
 class Observation(POMDPObservation):
@@ -49,7 +49,33 @@ class Observation(POMDPObservation):
                     return True # loss
                 count += 1 if val == UNCOV else 0
         return count == self.m
+    
+    def __is_start_obs(self):
+        for row in self.K:
+            for e in row:
+                if e != UNCOV:
+                    return False
+        return True
+    
+    def __is_corner_move(self, h ,a):
+        # first move should be corners, to take advantage
+        # of the fact that the first move is always safe
+        H = len(self.K)
+        W = len(self.K[0])
+        corners = {Action(0, 0), Action(H-1, 0), Action(H-1, W-1), Action(0, W-1)}
+        return self.__is_start_obs() and a in corners
 
+    def V_init(self, h , a):
+        if self.__is_corner_move(h, a):
+            print("first move in corner")
+            return 10
+        return 0
+    
+    def N_init(self, h, a ):
+        if self.__is_corner_move(h,a):
+            return 5
+        return 0
+        
             
 class Action(POMDPAction):
     """
