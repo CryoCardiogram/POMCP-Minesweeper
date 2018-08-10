@@ -75,7 +75,8 @@ class Node(object):
         for the current history. 
 
         """
-        o = self.h.last_obs()
+        o = self.h.observs[0]
+        assert(str(self.h.actions[-1]) == '(empty)')
         for a in o.available_actions():
             # updated history 
             ha = self.h.clone()

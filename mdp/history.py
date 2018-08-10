@@ -30,9 +30,12 @@ class History(object):
         Return:
             History: clone of the current history
         """
+        # clone in reverse order
         h = History()
         for a,o in zip(self.actions, self.observs):
             h.add(a,o)
+        h.actions = h.actions[::-1]
+        h.observs = h.observs[::-1]
         return h
 
     def add(self, action, observation):

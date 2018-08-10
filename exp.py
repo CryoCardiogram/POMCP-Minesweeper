@@ -9,7 +9,7 @@ from problems.minesweeper.play import play_minesweeper
     for r in range(rounds):
         qplayer.train(Board(4,4,4)) """
 
-b = Board(4,4,4)
+b = Board(4,4,3)
 p = RandomPlayer()
 monte_carlo = MCPlayer(1000, 0.5)
 #q = QPlayer(1)

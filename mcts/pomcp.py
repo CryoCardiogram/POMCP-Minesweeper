@@ -168,7 +168,7 @@ def simulate(state, node, proc=None):
 
         if not root.is_intree(nod.h):
             # Expansion
-            print("expansion d:{} a: {}".format(d, nod.a))
+            #print("expansion d:{} a: {}".format(d, nod.a))
             #for a, c in root.children.items():
             #    print("child {}".format(a))
             #    print(c.h)
@@ -182,7 +182,7 @@ def simulate(state, node, proc=None):
 
         # Selection
         a,u = UCB1_action_selection(nod)
-        print("selection d:{} a: {}".format(d, a))
+        #print("selection d:{} a: {}".format(d, a))
         # Simulation
         o, r = a.do_on(s)
         #hao = nod.h.clone()
@@ -202,8 +202,8 @@ def simulate(state, node, proc=None):
         nod_a.N += 1
         nod_a.V += (R - nod_a.V) / nod_a.N 
     
-    print("root belief size: {}".format(len(root.B)))
-    print("max depth:{}".format(max_d))
+    #print("root belief size: {}".format(len(root.B)))
+    #print("max depth:{}".format(max_d))
     # particles invigoration
     if proc:
         assert isinstance(proc, DecisionProcess)
@@ -232,8 +232,8 @@ def search(h, proc, max_iter, clean=False):
     root = params['root']
 
     # define the new root node
-    print("current root: {}, len(h): {}".format(h.actions[-1], len(h)))
-    treeroot = root.children[h.actions[-1]] if len(h) > 1 else Node(h.last_action(), h, 0, 0, list())
+    print("current root: {}, len(h): {}".format(h.actions[0], len(h))) 
+    treeroot = root.children[h.actions[0]] if len(h) > 1 else Node(h.last_action(), h, 0, 0, list())
     if clean:
         # start from scratch
         node =  Node(h.last_action(), h, 0, 0, list())
