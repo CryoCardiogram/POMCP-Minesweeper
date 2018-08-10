@@ -43,8 +43,8 @@ def UCB1_action_selection(node, greedy=False):
         (POMDPAction, float): best action and its UCB1 value 
     """
     assert isinstance(node, Node)
-    assert node.inTree
-        
+    assert node.inTree, "{} child(ren), {}".format(len(node.children), node.h)
+
     def UCB1(child, N):
         """
         UCB1 formula, return infinity if N == 0
@@ -246,7 +246,7 @@ def search(h, proc, max_iter, clean=False):
     while time_remaining():
         s = proc.initial_belief()
         if len(treeroot.h) > 1:
-            s = random.choice(root.B)
+            s = random.choice(tuple(root.B))
         simulate(s, treeroot , proc)
         ite+=1   
     # greedy action selection

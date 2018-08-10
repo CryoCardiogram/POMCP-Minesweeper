@@ -42,6 +42,10 @@ def create_node(h, a, o):
     #n.inTree = True
     return n
 
+class Belief(set):
+    def append(self, a):
+        # for retrocompatibility
+        self.add(a)
 
 class Node(object):
     """
@@ -65,7 +69,9 @@ class Node(object):
         self.a = a
         self.V = V 
         self.N = N 
-        self.B = B
+        self.B = B#Belief()
+        #for e in B:
+        #    self.B.add(e)
         self.children = dict()
         self.inTree = False
 

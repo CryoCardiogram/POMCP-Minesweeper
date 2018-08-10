@@ -32,7 +32,7 @@ class Observation(POMDPObservation):
     
     def __hash__(self):
         t = tuple([ tuple(row) for row in self.K ])
-        hash(t)
+        return hash(t)
     
     def __str__(self):
         s = ''
@@ -112,13 +112,15 @@ class State(POMDPState):
     def __init__(self, board):
         assert isinstance(board, Board)
         self.board = board
+        self.__tM = tuple([ tuple(row) for row in self.board.minefield ])
+        self.__tK = tuple([ tuple(row) for row in self.board.knowledge ])
 
     def __hash__(self):
-        return hash((tuple(self.board.minefield), tuple(self.board.knowledge), self.board.m))
+        return hash((self.__tM, self.__tK, self.board.m))
     
     def __eq__(self, other):
-        return (tuple(self.board.minefield), tuple(self.board.knowledge), self.board.m) == (tuple(other.board.known), tuple(other.board.knowledge), other.board.m)
-
+        return (self.__tM, self.__tK, self.board.m) == (other.__tM, other.__tK, other.board.m)
+        
     def is_goal(self):
         return self.board.win()
 
