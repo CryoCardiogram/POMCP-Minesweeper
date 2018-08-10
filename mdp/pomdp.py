@@ -7,9 +7,12 @@ class POMDPObservation(metaclass=ABCMeta):
     This class has to be extended regarding the application.
     """
     @abstractmethod
-    def available_actions(self):
+    def available_actions(self, h = None):
         """
         Generates all valid actions from the current observation
+
+        Args:
+            h (History): current history (optional)
 
         Yields:
             POMDPAction: the next available action for the current observation

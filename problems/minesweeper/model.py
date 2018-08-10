@@ -12,7 +12,7 @@ class Observation(POMDPObservation):
         self.K = knowledge
         self.m = mines
     
-    def available_actions(self):
+    def available_actions(self, h = None):
         if self.is_terminal():
             return 
             yield   # to avoid TypeError
@@ -20,8 +20,9 @@ class Observation(POMDPObservation):
         for row in range(len(self.K)):
             for col in range(len(self.K[0])):
                 val = self.K[row][col]
-                if val == UNCOV:
-                    yield Action(row, col)
+                a = Action(row, col)
+                if val == UNCOV and not (h and a in h.actions):
+                    yield a
     
     def __eq__(self, oth):
         for i in range(len(self.K)):

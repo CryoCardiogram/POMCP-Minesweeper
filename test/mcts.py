@@ -128,6 +128,7 @@ class TestPOMCP(unittest.TestCase):
     def test_end_rollout(self):
         params['epsilon'] = 0.000000001 # many  steps
         params['gamma'] = 0.99999
+        params['max_depth']= 1000000000
         params['timeout'] = 3  
 
         # test timeout
@@ -145,6 +146,7 @@ class TestPOMCP(unittest.TestCase):
             'start_time': time.time(),
             'gamma': 0.5,
             'epsilon': 0.2,
+            'max_depth':100,
             'timeout': 3
         })
         simulate(self.start, root)
@@ -164,15 +166,16 @@ class TestPOMCP(unittest.TestCase):
             'gamma': 0.5,
             'epsilon': 0.26 ,    # depth 2 
             'timeout': 3,
+            'max_depth': 100,
             'c': 2
         })
         simulate(self.start, self.root)
         ## left-door child (history: empty-left [gauche in french]) should have been chosen (exploration)
         eg = self.root.children[Action(LEFT)]
         self.assertEqual(len(eg.children), 3, msg="wrong child 1st iteration")
-        self.assertGreater(eg.N, 0) # with prefered action, will be higher than 1
-        # value should be high
-        self.assertGreater(eg.V, 1)
+        self.assertGreater(eg.N, 0) # with prefered action, could be higher than 1
+        # abs value should be high (could be negative)
+        self.assertGreater(abs(eg.V), 5) 
 
         # 2nd iteration
         ## new sample from root belief space
@@ -183,8 +186,8 @@ class TestPOMCP(unittest.TestCase):
         er = self.root.children[Action(direction=RIGHT)]
         self.assertEqual(len(er.children), 3, msg='wrong child 2nd iteration')
         self.assertGreater(er.N, 0)
-        # value should be high
-        self.assertGreater(er.V, 1)
+        # abs value should be high (could be negative)
+        self.assertGreater(abs(er.V), 5)
 
         # if backpropagation works, root.N should be 4
         self.assertEqual(self.root.N, 4, msg='backpropagation fails')
@@ -207,6 +210,7 @@ class TestPOMCP(unittest.TestCase):
             'gamma': 0.5,
             'epsilon': 0.26 ,    # depth 2 
             'timeout': 5,
+            'max_depth': 100,
             'c': 2
         })
 

@@ -39,7 +39,7 @@ def create_node(h, a, o):
     assert isinstance(h, History)
     h.add(a, o)
     n = Node(a, h, v_init(h,a), n_init(h,a), list())
-    n.inTree = True
+    #n.inTree = True
     return n
 
 
@@ -73,11 +73,10 @@ class Node(object):
         """
         Initialize children nodes with respect to available actions
         for the current history. 
-
         """
         o = self.h.observs[0]
         assert(str(self.h.actions[-1]) == '(empty)')
-        for a in o.available_actions():
+        for a in o.available_actions(self.h):
             # updated history 
             ha = self.h.clone()
             self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), list() )} )

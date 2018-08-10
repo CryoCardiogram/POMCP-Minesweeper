@@ -61,7 +61,7 @@ class Observation(POMDPObservation):
     def __hash__(self):
         return hash(self.hear)
     
-    def available_actions(self):
+    def available_actions(self, h=None):
         yield Action(listen=True)
         for i in range(len(self.hear)):
             yield Action(i)
