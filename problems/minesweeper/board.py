@@ -101,6 +101,31 @@ class Board(object):
             s += str(row) + '\n'
         s += '_' * 25
         return s
+    
+    def draw(self, board):
+        # add row/col number
+        colnums = [i for i in range(self.w)]
+        rownums = [i for i in range(self.h)]
+        rownums.insert(0, ' ')
+        d = []
+        i = 0
+        for i in range(len(rownums)):
+            row = board[i-1] if i > 0 else colnums 
+            d.append(list(row))
+            d[i].insert(0, rownums[i])
+            i += 1
+        
+        # draw panel
+        s = ''
+        s += '_'* 25 + '\n'
+        for row in d:
+            for e in row:
+                s += str(e) + '  '
+            s += '\n'
+        s += '_' * 25
+        print(s)
+
+
 
     def win(self):
         return self.nUncov == self.m

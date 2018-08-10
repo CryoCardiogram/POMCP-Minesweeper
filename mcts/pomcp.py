@@ -45,6 +45,9 @@ def UCB1_action_selection(node, greedy=False):
     assert isinstance(node, Node)
     assert node.inTree
 
+    if greedy:
+        print("tree history {}".format(node.h))
+        
     def UCB1(child, N):
         """
         UCB1 formula, return infinity if N == 0
