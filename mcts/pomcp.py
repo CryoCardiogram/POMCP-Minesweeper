@@ -44,9 +44,6 @@ def UCB1_action_selection(node, greedy=False):
     """
     assert isinstance(node, Node)
     assert node.inTree
-
-    if greedy:
-        print("tree history {}".format(node.h))
         
     def UCB1(child, N):
         """
@@ -67,7 +64,9 @@ def UCB1_action_selection(node, greedy=False):
              
     # (action, UCB1val) list 
     l = [ (a, UCB1(child, node.N)) for a, child in node.children.items() ]
-
+    if greedy:
+        print("tree history {}".format(node.h))
+        print(l)
     return max(l, key=lambda t: t[1])
 
 def discount_calc(rewards, discount):
@@ -232,15 +231,13 @@ def search(h, proc, max_iter, clean=False):
     assert isinstance(proc, DecisionProcess)
     # init global vars
     params['start_time'] = time.time()
+    if clean:
+        params['root'] = Node(POMDPAction(), History(), 0, 0, list())
     root = params['root']
 
     # define the new root node
     print("current root: {}, len(h): {}".format(h.actions[0], len(h))) 
-    treeroot = root.children[h.actions[0]] if len(h) > 1 else Node(h.last_action(), h, 0, 0, list())
-    if clean:
-        # start from scratch
-        node =  Node(h.last_action(), h, 0, 0, list())
-        treeroot = node     
+    treeroot = Node(h.last_action(), h, 0, 0, list())   
     ite = 0
     # time out
     def time_remaining():

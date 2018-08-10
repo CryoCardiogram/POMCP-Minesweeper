@@ -11,7 +11,7 @@ from problems.minesweeper.play import play_minesweeper
 
 b = Board(9,9,10)
 p = RandomPlayer()
-monte_carlo = MCPlayer(100000, 20.0)
+monte_carlo = MCPlayer(100000, 5.0)
 #q = QPlayer(1)
 #train_Qplayer(1000, q)
 
@@ -19,4 +19,4 @@ monte_carlo = MCPlayer(100000, 20.0)
 print("let's play")
 w, s = play_minesweeper(monte_carlo, b)
 print(w)
-print(s)
+print(s) 
