@@ -67,7 +67,7 @@ class Observation(POMDPObservation):
 
     def V_init(self, h , a):
         if self.__is_corner_move(h, a):
-            print("first move in corner")
+            #print("first move in corner")
             return 10
         return 0
     
@@ -116,9 +116,13 @@ class State(POMDPState):
         self.__tK = tuple([ tuple(row) for row in self.board.knowledge ])
 
     def __hash__(self):
+        self.__tM = tuple([ tuple(row) for row in self.board.minefield ])
+        self.__tK = tuple([ tuple(row) for row in self.board.knowledge ])
         return hash((self.__tM, self.__tK, self.board.m))
     
     def __eq__(self, other):
+        self.__tM = tuple([ tuple(row) for row in self.board.minefield ])
+        self.__tK = tuple([ tuple(row) for row in self.board.knowledge ])
         return (self.__tM, self.__tK, self.board.m) == (other.__tM, other.__tK, other.board.m)
         
     def is_goal(self):

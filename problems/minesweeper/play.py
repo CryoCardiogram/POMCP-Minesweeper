@@ -3,7 +3,7 @@ from .model import State
 from .board import Board
 from .player import AbstractPlayer
 
-def play_minesweeper(player, board): 
+def play_minesweeper(player, board, log=False): 
     assert isinstance(player, AbstractPlayer)
     assert isinstance(board, Board)
     steps = 0
@@ -13,16 +13,18 @@ def play_minesweeper(player, board):
 
     while not game_over:
         r,c = player.next_action(state)
-        val = state.probe(r,c)
-        #print(board)
-        board.draw(board.knowledge)
+        val = state.probe(r,c, log=log)
+        if log:
+            board.draw(board.knowledge)
         if val is MINE: 
             game_over = True
-            print("GAME OVER\n")
-            board.draw(board.minefield)
+            if log:
+                print("GAME OVER\n")
+                board.draw(board.minefield)
         elif state.is_goal():
-            print("WIN\n")
             game_over = True
             win = 1
+            if log:
+                print("WIN\n")
         steps+=1
     return (win, steps)

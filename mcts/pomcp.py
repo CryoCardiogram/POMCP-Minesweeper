@@ -17,6 +17,7 @@ params = {
     'timeout':120,      # timeout for each iteration in seconds
     'start_time': 0,    # start time in seconds
     'max_depth': 20,    # max depth
+    'log': 1,           # level of logs printed on console [0,2]
     'root': Node(POMDPAction(), History(), 0, 0, list())
 }
 
@@ -64,7 +65,7 @@ def UCB1_action_selection(node, greedy=False):
              
     # (action, UCB1val) list 
     l = [ (a, UCB1(child, node.N)) for a, child in node.children.items() ]
-    if greedy:
+    if greedy and params['log'] >= 2:
         print("tree history {}".format(node.h))
         print( [(a, (child.N, child.V)) for a, child in node.children.items() ]  )
     return max(l, key=lambda t: t[1])
@@ -122,7 +123,7 @@ def rollout(state, node, depth):
     rewards = []
     while not end_rollout(d, h):
         # iterative implementation
-        a = random.choice([action for action in h.last_obs().available_actions()])
+        a = random.choice([action for action in h.last_obs().available_actions(h)])
         o, r = a.do_on(s)
         rewards.append(float(r))
         d += 1
@@ -236,7 +237,8 @@ def search(h, proc, max_iter, clean=False):
     root = params['root']
 
     # define the new root node
-    print("current root: {}, len(h): {}".format(h.actions[0], len(h))) 
+    if params['log'] >= 1:
+        print("current root: {}, len(h): {}".format(h.actions[0], len(h))) 
     treeroot = Node(h.last_action(), h, 0, 0, list())   
     ite = 0
     # time out
@@ -252,7 +254,8 @@ def search(h, proc, max_iter, clean=False):
     # greedy action selection
     a = UCB1_action_selection(treeroot, greedy=True)[0]
     params['root'] = treeroot
-    print("next belief size: {}".format(len(treeroot.children[a].B)))
+    if params['log'] >= 1:
+        print("next belief size: {}".format(len(treeroot.children[a].B)))
     return a
     
     
