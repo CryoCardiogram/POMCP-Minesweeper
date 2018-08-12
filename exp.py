@@ -13,28 +13,22 @@ import traceback
     for r in range(rounds):
         qplayer.train(Board(4,4,4)) """
 
-b = Board(4,4,5)
+b = Board(9,9,10 )
 p = RandomPlayer()
-monte_carlo = MCPlayer(100000, 10.0)
-#q = QPlayer(1)
-#train_Qplayer(1000, q)
+monte_carlo = MCPlayer(100000, 15.0) 
+play_minesweeper(monte_carlo, b, True)
 
 
-#print("let's play")
-#w, s = play_minesweeper(monte_carlo, b)
-#print(w)
-#print(s) 
+if __name__=='__main__' and False:
 
-with open('random.csv', 'w+') as o:
-    cW = csv.writer(o)
-    # headers
-    cW.writerow(['win', 'steps'])
-with open('mc.csv', 'w+') as o:
-    cW = csv.writer(o)
-    # headers
-    cW.writerow(['win', 'steps'])
-
-if __name__=='__main__':
+    with open('random.csv', 'w+') as o:
+        cW = csv.writer(o)
+        # headers
+        cW.writerow(['win', 'steps'])
+    with open('mc.csv', 'w+') as o:
+        cW = csv.writer(o)
+        # headers
+        cW.writerow(['win', 'steps'])
 
     rr = []
     rmc = []

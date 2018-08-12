@@ -103,14 +103,16 @@ def end_rollout(depth, h):
     else:
         return False
 
-def rollout(state, node, depth):
+def rollout(state, node, depth, policy=None):
     """
-    This function simulates the process with a random action policy, 
+    This function simulates the process with a defined action policy (random by default), 
     from the given start state until a depth threshold is met (controlled by the epsilon param)
     Args:
         state (POMDPState): the start state
         node (Node): node with current history h
         depth (int): current depth in the tree
+        policy (History -> POMDPAction): function that takes a History as argument and return 
+        a POMDPAction
     Return:
         float: the final reward of the random playout 
     """
@@ -123,7 +125,13 @@ def rollout(state, node, depth):
     rewards = []
     while not end_rollout(d, h):
         # iterative implementation
-        a = random.choice([action for action in h.last_obs().available_actions(h)])
+        if policy:
+            a = policy(h)
+        else:
+            action_pool = [action for action in h.last_obs().available_actions(h)]
+            #if len(action_pool) == 0:
+            #    print("empty pool")
+            a = random.choice([action for action in h.last_obs().available_actions(h)])
         o, r = a.do_on(s)
         rewards.append(float(r))
         d += 1
@@ -188,32 +196,36 @@ def simulate(state, node, proc=None):
         #print("selection d:{} a: {}".format(d, a))
         # Simulation
         o, r = a.do_on(s)
-        #hao = nod.h.clone()
+        hao = nod.h.clone()
+        #hao.add(a, o)
         #nod.children[a] = create_node(hao, a, o)
-        nod.children[a].h.add(a,o)
+        #nod.children[a].h.add(a,o)
         #nod.children[a].inTree = True
         rewards.append(float(r))
-        fringe.append((nod.children[a], d+1))
+        if nod.children[a].inTree:
+            fringe.append((nod.children[a], d+1))
+        else:
+            nod.children[a] = create_node(hao, a, o)
+            fringe.append((nod.children[a], d+1))
     
     # Backpropagation
     for i in range(1, len(backprop)+1):
         nod, d, s = backprop[-i] # parent
         nod_a = backprop[-i + 1][0] # simulated child 
         R = discount_calc(rewards[d::], params['gamma'])[0]
-        nod.B.append(s)
+        if nod.h.last_obs().K == s.board.knowledge:
+            nod.B.append(s)
+            #if d >= 1:
+                #print("oyo")
+        #else:
+        #    print("wrong belief update?")
         #print("d{}, h:{}, bsize: {}".format(d, nod.h, len(node.B)))
         nod_a.N += 1
         nod_a.V += (R - nod_a.V) / nod_a.N 
     
     #print("root belief size: {}".format(len(root.B)))
     #print("max depth:{}".format(max_d))
-    # particles invigoration
-    if proc:
-        assert isinstance(proc, DecisionProcess)
-        for a, child in node.children.items():
-            #if len(child.B):
-                #print("child {}, bsize: {}".format(a, len(child.B)))
-            proc.invigoration(child.B)
+    
 
 def search(h, proc, max_iter, clean=False):
     """
@@ -245,15 +257,20 @@ def search(h, proc, max_iter, clean=False):
     def time_remaining():
         return ite < max_iter and (time.time() - params['start_time']) < params['timeout']
     
+    # search
     while time_remaining():
         s = proc.initial_belief()
         if len(treeroot.h) > 1:
             s = random.choice(tuple(root.B))
         simulate(s, treeroot , proc)
         ite+=1   
+    
     # greedy action selection
     a = UCB1_action_selection(treeroot, greedy=True)[0]
     params['root'] = treeroot
+    child = treeroot.children[a]
+    # particles invigoration
+    proc.invigoration(child.B, child.h)
     if params['log'] >= 1:
         print("next belief size: {}".format(len(treeroot.children[a].B)))
     return a

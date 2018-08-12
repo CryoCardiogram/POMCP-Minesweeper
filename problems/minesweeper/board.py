@@ -128,7 +128,16 @@ class Board(object):
 
 
     def win(self):
-        return self.nUncov == self.m
+        count = 0
+        for row in self.knowledge:
+            for val in row:
+                if val == UNCOV:
+                    count += 1
+                    if count > self.m:
+                        return False
+                elif val == MINE:
+                    return False 
+        return count == self.m
 
     def clone(self):
         b = Board(self.h, self.w, self.m)
