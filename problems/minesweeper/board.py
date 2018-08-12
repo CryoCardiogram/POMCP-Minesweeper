@@ -11,13 +11,14 @@ class Board(object):
         self.h = height # rows
         self.w = width  # cols
         self.firstmove = True
-        
+
         # solution
         self.minefield = array2D(height, width, '' )
         # current player's view
         self.knowledge = array2D(height, width, UNCOV)
         # count of unvisited cells
         self.nUncov = self.h * self.w
+
 
     def neighbourhood(self, x, y):
         """

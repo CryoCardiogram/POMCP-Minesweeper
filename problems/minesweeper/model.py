@@ -114,6 +114,18 @@ class State(POMDPState):
         self.board = board
         self.__tM = tuple([ tuple(row) for row in self.board.minefield ])
         self.__tK = tuple([ tuple(row) for row in self.board.knowledge ])
+        # cells of the board are divided in different sets
+        # interior: set of covered cells not adjacent to a mine (cells containing NOTHING )
+        self.interior = set()
+        # frontier: set of covered cells ajacent to at least 1 mine (cells with hints)
+        self.frontier = set()
+        # fringe: set of uncovered cells adjacent to at least 1 frontier cell
+        self.fringe = set()
+        # uncovered: set of remaining uncovered cells
+        self.uncovs = set()
+        for r in range(len(self.board.knowledge)):
+            for c in range(len(self.board.knowledge[0])):
+                self.uncovs.add((r,c))
 
     def __hash__(self):
         return hash((self.__tM, self.__tK, self.board.m))
@@ -125,28 +137,59 @@ class State(POMDPState):
         return self.board.win()
 
     def clone(self):
-        return State(self.board.clone())
+        s = State(self.board.clone())
+        sets = ['interior', 'frontier', 'fringe', 'uncovs']
+        for setname in sets:
+            setattr(s, setname, set({cell for cell in getattr(self, setname)}) )
+        return s
+    
+    def ___remove_from_uncovs(self, R, C):
+        # sets update
+        try:
+            self.fringe.remove((R,C))
+        except KeyError:
+            self.uncovs.discard((R,C))   
+            self.fringe.discard((R,C))  
+
+    def __update_fringe(self):
+        adj = set()
+        for r,c in self.frontier:
+            adj.update({cell for cell in self.board.neighbourhood(r,c)})
+
+        for cell in adj:
+            if cell in self.uncovs:
+                self.uncovs.discard(cell)
+                self.fringe.add(cell)
+        assert self.fringe.isdisjoint(self.uncovs)
 
     def probe(self, r, c, log=True):
         if log:
             print((r, c))
         val = self.board.update(r, c, log=log)
+        self.___remove_from_uncovs(r,c)
 
         # auto reveal of empty cells
         if val is NOTHING:
             #if log:
             #    print("autoprobe")
+            self.interior.add((r,c))
             autoprob = [ cell for cell in self.board.neighbourhood(r,c) ]
             done = set()
             while autoprob:
                 R, C = autoprob.pop()
+                self.___remove_from_uncovs(R,C)
                 v = self.board.update(R, C, log = False)
                 done.add((R,C))
                 if v is NOTHING:
+                    self.interior.add((R,C))
                     for cell in self.board.neighbourhood(R, C):
                         if cell not in done:
                             autoprob.append(cell)
-
+                else:
+                    self.frontier.add((R,C))
+        else:
+            self.frontier.add((r,c))
+        self.__update_fringe()
         self.__tM = tuple([ tuple(row) for row in self.board.minefield ])
         self.__tK = tuple([ tuple(row) for row in self.board.knowledge ])
         return val
