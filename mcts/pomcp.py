@@ -272,7 +272,7 @@ def search(h, proc, max_iter, clean=False):
     # particles invigoration
     proc.invigoration(child.B, child.h)
     if params['log'] >= 1:
-        print("next belief size: {}".format(len(treeroot.children[a].B)))
+        print("next belief size: {}".format(len(child.B)))
     return a
     
     

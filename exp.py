@@ -13,9 +13,9 @@ import traceback
     for r in range(rounds):
         qplayer.train(Board(4,4,4)) """
 
-b = Board(9,9,10 )
+b = Board(4,4,3)
 p = RandomPlayer()
-monte_carlo = MCPlayer(100000, 15.0) 
+monte_carlo = MCPlayer(100000, 30.0) 
 play_minesweeper(monte_carlo, b, True)
 
 

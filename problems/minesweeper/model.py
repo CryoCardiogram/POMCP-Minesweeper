@@ -3,6 +3,7 @@ import random
 import math
 from problems.minesweeper.globals import UNCOV, MINE, NOTHING
 from mdp.pomdp import POMDPState, POMDPObservation, POMDPAction, DecisionProcess
+from mcts.pomcp import params
 
 class Observation(POMDPObservation):
     """
@@ -201,10 +202,54 @@ class Minesweeper(DecisionProcess):
         self.w = w
         self.m = m
 
-    def invigoration(self, B):
-        # TODO
-        pass
-    
+    def invigoration(self, B, h):
+        assert len(B) > 0, "empty belief"
+        max_to_add = math.floor(1/params['K'] * len(B))
+        init_len = len(B)
+        tries = 0
+
+        def mine_near(b, x, y):
+            count = 0
+            for r,c in b.neighbourhood(x, y):
+                if b.minefield[r][c] is MINE:
+                    count += 1
+            return count 
+
+        while len(B) != max_to_add + init_len and tries < 100:
+            tries += 1 # try at most 100 times
+            rnd = random.choice(tuple(B))
+            # we only consider mines in the set of uncovered cells
+            uncov_mines = 0
+            mines = set()
+            uncov_copy = set({cell for cell in rnd.uncovs})
+            particle = rnd.clone() # artificial state to add noise in the belief set
+            for r,c in uncov_copy:
+                # clear the uncovered minefield of our particle
+                particle.board.minefield[r][c] = NOTHING
+                if rnd.board.minefield[r][c] == MINE:
+                    # count the mines within uncovered cells
+                    mines.add((r,c))
+                    uncov_mines += 1
+                
+            # we randomly change location of mines in the set of uncovered cells
+            new_locations = set()
+            while len(new_locations) < uncov_mines:
+                rnd_cell = random.choice(tuple(uncov_copy))
+                if rnd_cell not in new_locations:
+                    uncov_copy.discard(rnd_cell)
+                    new_locations.add(rnd_cell)
+
+            # place mines at new location and compute hints 
+            for r,c in particle.uncovs:
+                if (r,c) in new_locations:
+                    particle.board.minefield[r][c] = MINE
+                else:
+                    mn = mine_near(particle.board, r, c)
+                    particle.board.minefield[r][c] = mn if mn > 0 else NOTHING
+            
+            B.add(particle)
+        print("{} state(s) added".format(len(B) - init_len))
+
     def initial_belief(self):
         return State(Board(self.h, self.w, self.m))
         
