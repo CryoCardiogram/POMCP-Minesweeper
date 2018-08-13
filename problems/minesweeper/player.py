@@ -27,7 +27,7 @@ class MCPlayer(AbstractPlayer):
             'epsilon': 0.0,
             'log': 2,
             'K': 2,
-            'c':0.5
+            'c':10
         })
         self.h = History()
         self.last_action = POMDPAction()

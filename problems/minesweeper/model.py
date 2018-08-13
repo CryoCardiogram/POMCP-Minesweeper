@@ -205,8 +205,13 @@ class Minesweeper(DecisionProcess):
         self.w = w
         self.m = m
 
+    def __empty_belief(self, B, h):
+        # create at least 1 particle that can then be used by the invigoration algorithm,
+        # based on the current observation
+        pass
+
     def invigoration(self, B, h):
-        assert len(B) > 0, "empty belief"
+        assert len(B) > 0, "empty belief: {}".format(h)
         max_to_add = math.floor(1/params['K'] * len(B))
         init_len = len(B)
         tries = 0

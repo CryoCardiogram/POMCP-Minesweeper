@@ -82,7 +82,7 @@ class Node(object):
         """
         o = self.h.observs[0]
         assert(str(self.h.actions[-1]) == '(empty)')
-        for a in o.available_actions(self.h):
+        for a in o.available_actions():
             # updated history 
             ha = self.h.clone()
             self.children.update(  {a: Node(a, ha, v_init(ha, a), n_init(ha, a), list() )} )

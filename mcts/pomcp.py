@@ -65,10 +65,11 @@ def UCB1_action_selection(node, greedy=False):
              
     # (action, UCB1val) list 
     l = [ (a, UCB1(child, node.N)) for a, child in node.children.items() ]
+    a,f = max(l, key=lambda t: t[1])
     if greedy and params['log'] >= 2:
         print("tree history {}".format(node.h))
         print( [(a, (child.N, child.V)) for a, child in node.children.items() ]  )
-    return max(l, key=lambda t: t[1])
+    return (a,f)
 
 def discount_calc(rewards, discount):
     """
@@ -252,12 +253,17 @@ def search(h, proc, max_iter, clean=True):
         params['root'] = Node(h.last_action(), h, 0, 0, list())
     
     root = params['root'].children[h.last_action()] if h.last_action() != POMDPAction() else params['root']
-    #assert root.h == h, '{} vs {}'.format(root.h, h)
 
-    # define the new root node
+    # root should have history given as args but B from previous root
+    root.h = h.clone()
+    if len(root.h) > 1:
+        proc.invigoration(root.B, root.h)
+    # at each call to search, children of the current root must be regenerated, to 
+    # consider the last real action-observation obtained
+    root.inTree = False
+
     if params['log'] >= 1:
-        print("current root: {}, len(h): {}".format(h.actions[0], len(h))) 
-    #treeroot = Node(h.last_action(), h, 0, 0, list())   
+        print("current root: {}, len(h): {}".format(h.actions[0], len(h)))    
     ite = 0
     # time out
     def time_remaining():
@@ -276,7 +282,6 @@ def search(h, proc, max_iter, clean=True):
     params['root'] = root
     child = root.children[a]
     # particles invigoration
-    proc.invigoration(child.B, child.h)
     if params['log'] >= 1:
         print("next belief size: {}".format(len(child.B)))
     return a
