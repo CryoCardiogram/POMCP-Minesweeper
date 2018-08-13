@@ -129,9 +129,7 @@ def rollout(state, node, depth, policy=None):
             a = policy(h)
         else:
             action_pool = [action for action in h.last_obs().available_actions(h)]
-            #if len(action_pool) == 0:
-            #    print("empty pool")
-            a = random.choice([action for action in h.last_obs().available_actions(h)])
+            a = random.choice(action_pool)
         o, r = a.do_on(s)
         rewards.append(float(r))
         d += 1
@@ -213,7 +211,13 @@ def simulate(state, node, proc=None):
         nod, d, s = backprop[-i] # parent
         nod_a = backprop[-i + 1][0] # simulated child 
         R = discount_calc(rewards[d::], params['gamma'])[0]
-        if nod.h.last_obs().K == s.board.knowledge:
+        # only add s to the belief space if its observation match the real observation
+        sc = state.clone()
+        o = nod.h.last_obs()
+        for i in range(1, d):
+            act = nod.h.actions[i]
+            o, tmp = act.do_on(sc)
+        if nod.h.last_obs() == o:
             nod.B.append(s)
             #if d >= 1:
                 #print("oyo")

@@ -69,9 +69,9 @@ class Node(object):
         self.a = a
         self.V = V 
         self.N = N 
-        self.B = Belief()
-        for e in B:
-            self.B.add(e)
+        self.B = B#Belief()
+        #for e in B:
+        #    self.B.add(e)
         self.children = dict()
         self.inTree = False
 

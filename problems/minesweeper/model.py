@@ -247,7 +247,7 @@ class Minesweeper(DecisionProcess):
                     mn = mine_near(particle.board, r, c)
                     particle.board.minefield[r][c] = mn if mn > 0 else NOTHING
             
-            B.add(particle)
+            B.append(particle)
         print("{} state(s) added".format(len(B) - init_len))
 
     def initial_belief(self):
