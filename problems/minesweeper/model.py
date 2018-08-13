@@ -101,8 +101,11 @@ class Action(POMDPAction):
     
     def do_on(self, state):
         assert isinstance(state, State)
-        state.probe(self.cell[0], self.cell[1], log=False)
-        r = 1.0 if state.is_goal() else 0.0
+        init_len = len(state.interior) + len(state.frontier)
+        val = state.probe(self.cell[0], self.cell[1], log=False)
+        after = len(state.interior) + len(state.frontier)
+        # intermediate reward of 1 per probed cell (before landing on a mine)
+        r = 0 if val == MINE else after - init_len
         return (Observation(state.board.knowledge, state.board.m), r)
 
 class State(POMDPState):

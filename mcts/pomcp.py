@@ -93,7 +93,7 @@ def end_rollout(depth, h):
     if params['gamma']**depth < params['epsilon'] or depth >= params['max_depth']:
         #print("max depth")
         return True
-    elif h.last_obs().is_terminal():
+    elif len(h) > 0 and h.last_obs().is_terminal():
         #print("terminal obs")
         return True
     elif (time.time() - params['start_time']) >= params['timeout']:
@@ -231,7 +231,7 @@ def simulate(state, node, proc=None):
     #print("max depth:{}".format(max_d))
     
 
-def search(h, proc, max_iter, clean=False):
+def search(h, proc, max_iter, clean=True):
     """
     This function implements the UCT algorithm.
 
@@ -249,13 +249,15 @@ def search(h, proc, max_iter, clean=False):
     # init global vars
     params['start_time'] = time.time()
     if clean:
-        params['root'] = Node(POMDPAction(), History(), 0, 0, list())
-    root = params['root']
+        params['root'] = Node(h.last_action(), h, 0, 0, list())
+    
+    root = params['root'].children[h.last_action()] if h.last_action() != POMDPAction() else params['root']
+    #assert root.h == h, '{} vs {}'.format(root.h, h)
 
     # define the new root node
     if params['log'] >= 1:
         print("current root: {}, len(h): {}".format(h.actions[0], len(h))) 
-    treeroot = Node(h.last_action(), h, 0, 0, list())   
+    #treeroot = Node(h.last_action(), h, 0, 0, list())   
     ite = 0
     # time out
     def time_remaining():
@@ -264,15 +266,15 @@ def search(h, proc, max_iter, clean=False):
     # search
     while time_remaining():
         s = proc.initial_belief()
-        if len(treeroot.h) > 1:
+        if len(root.h) > 1:
             s = random.choice(tuple(root.B))
-        simulate(s, treeroot , proc)
+        simulate(s, root , proc)
         ite+=1   
     
     # greedy action selection
-    a = UCB1_action_selection(treeroot, greedy=True)[0]
-    params['root'] = treeroot
-    child = treeroot.children[a]
+    a = UCB1_action_selection(root, greedy=True)[0]
+    params['root'] = root
+    child = root.children[a]
     # particles invigoration
     proc.invigoration(child.B, child.h)
     if params['log'] >= 1:
