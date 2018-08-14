@@ -13,13 +13,13 @@ import traceback
     for r in range(rounds):
         qplayer.train(Board(4,4,4)) """
 
-b = Board(9,9,10)
+b = Board(4,4,2)
 p = RandomPlayer()
 monte_carlo = MCPlayer(2000000, 1.0) 
-play_minesweeper(monte_carlo, b, True)
+#play_minesweeper(monte_carlo, b, True)
 
 
-if __name__=='__main__' and False:
+if __name__=='__main__' :
 
     with open('random.csv', 'w+') as o:
         cW = csv.writer(o)
@@ -33,21 +33,21 @@ if __name__=='__main__' and False:
     rr = []
     rmc = []
     errors = 0
-    for i in range(5):
+    for i in range(50):
         try:
-            rmc.append(play_minesweeper(monte_carlo, Board(4,4,5)))
+            rmc.append(play_minesweeper(monte_carlo, Board(4,4,6)))
         except:
             errors += 1
             with open('err.txt', 'a') as err:
                 err.write("iteration {}\n".format(i))
                 tb = sys.exc_info()[2]
                 traceback.print_tb(tb, file=err)
-        try:
-            rr.append(play_minesweeper(p, Board(4,4,5)))
-        except:
-            errors += 1
-            with open('err.txt', 'a') as err:
-                err.write("iteration {}: {}\n".format(i, sys.exc_info()))
+        #try:
+        #    rr.append(play_minesweeper(p, Board(4,4,5)))
+        #except:
+        #    errors += 1
+        #    with open('err.txt', 'a') as err:
+        #        err.write("iteration {}: {}\n".format(i, sys.exc_info()))
     print("{} error(s)".format(errors))
 
     rnd_fd = open("random.csv", 'a')

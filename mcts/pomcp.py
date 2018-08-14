@@ -5,6 +5,7 @@ import scipy.signal as signal
 import math
 import random
 import time
+import os
 
 
 params = {
@@ -130,6 +131,9 @@ def rollout(state, node, depth, policy=None):
             a = policy(h)
         else:
             action_pool = [action for action in h.last_obs().available_actions(h)]
+            if len(action_pool) == 0:
+                rewards.append(0)
+                continue
             a = random.choice(action_pool)
         o, r = a.do_on(s)
         rewards.append(float(r))
@@ -275,7 +279,7 @@ def search(h, proc, max_iter, clean=True):
         simulate(s, root , proc)
         ite+=1   
 
-    updateR(root)
+    updateR(root, proc)
 
     # greedy action selection
     a = UCB1_action_selection(root, greedy=True)[0]
@@ -288,9 +292,14 @@ def search(h, proc, max_iter, clean=True):
         print("next belief size: {}".format(len(child.B)))
     return a
     
-def updateR(root):
+def updateR(root, proc):
     assert isinstance(root, Node)
-    with open("hi_lo_R.txt", "r") as o:
+    fname = "hi_lo_{}x{}m{}.txt".format(proc.h, proc.w, proc.m)
+    if fname not in os.listdir():
+        with open(fname, 'w') as st:
+            st.write('0\n0')
+
+    with open(fname, "r+") as o:
         params['R_lo'], params['R_hi'] = tuple(float(l) for l in o.readlines())
     hi = -math.inf
     lo = math.inf
@@ -301,5 +310,5 @@ def updateR(root):
             lo = child.V
     params['R_lo'] = lo if lo < params['R_lo'] else params['R_lo']
     params['R_hi'] = hi if hi > params['R_hi'] else params['R_hi']
-    with open("hi_lo_R.txt", "w") as o:
+    with open(fname, "w") as o:
         o.write("{}\n{}".format(params['R_lo'], params['R_hi']))
