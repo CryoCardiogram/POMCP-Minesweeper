@@ -26,7 +26,7 @@ class MCPlayer(AbstractPlayer):
             'gamma' : 1.0, # minesweeper is a finite horizon game
             'epsilon': 0.0,
             'log': 2,
-            'K': 2,
+            'K': 16,
             'c':10 
         })
         self.h = History()

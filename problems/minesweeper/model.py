@@ -210,9 +210,9 @@ class Minesweeper(DecisionProcess):
         # based on the current observation
         pass
 
-    def invigoration(self, B, h):
-        assert len(B) > 0, "empty belief: {}".format(h)
-        max_to_add = math.floor(1/params['K'] * len(B))
+    def invigoration(self, B, nSim):
+        assert len(B) > 0, "empty belief"
+        max_to_add = math.floor(nSim/params['K'])
         init_len = len(B)
         tries = 0
 
@@ -223,7 +223,7 @@ class Minesweeper(DecisionProcess):
                     count += 1
             return count 
 
-        while len(B) != max_to_add + init_len and tries < 100:
+        while len(B) != max_to_add + init_len and tries < 1000:
             tries += 1 # try at most 100 times
             rnd = random.choice(tuple(B))
             # we only consider mines in the set of uncovered cells
@@ -256,7 +256,8 @@ class Minesweeper(DecisionProcess):
                     particle.board.minefield[r][c] = mn if mn > 0 else NOTHING
             
             B.append(particle)
-        print("{} state(s) added".format(len(B) - init_len))
+        if params['log'] >= 2:
+            print("{} state(s) added".format(len(B) - init_len))
 
     def initial_belief(self):
         return State(Board(self.h, self.w, self.m))

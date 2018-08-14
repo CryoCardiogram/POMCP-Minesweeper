@@ -256,8 +256,6 @@ def search(h, proc, max_iter, clean=True):
 
     # root should have history given as args but B from previous root
     root.h = h.clone()
-    if len(root.h) > 1:
-        proc.invigoration(root.B, root.h)
     # at each call to search, children of the current root must be regenerated, to 
     # consider the last real action-observation obtained
     root.inTree = False
@@ -276,12 +274,14 @@ def search(h, proc, max_iter, clean=True):
             s = random.choice(tuple(root.B))
         simulate(s, root , proc)
         ite+=1   
-    
+
     # greedy action selection
     a = UCB1_action_selection(root, greedy=True)[0]
     params['root'] = root
     child = root.children[a]
-    # particles invigoration
+
+    # particle reinvigoration
+    proc.invigoration(child.B, ite)
     if params['log'] >= 1:
         print("next belief size: {}".format(len(child.B)))
     return a

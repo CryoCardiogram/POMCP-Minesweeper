@@ -124,9 +124,9 @@ class DecisionProcess(metaclass=ABCMeta):
     """
     This ABC should be extended to describe meta-parameters and domain knowledge of the POMDP. 
     """
-    def invigoration(self, B, h):
+    def invigoration(self, B, nSim):
         """
-        Particle reinvigoration method to fill in the belief space with 1/K * len(B) additional states (see params), in order to 
+        Particle reinvigoration method to fill in the belief space with nSim/K  additional states (see params), in order to 
         avoid the degeneracy problem.
 
         As the belief space for an an history h is approximated by a set of particles 
@@ -139,7 +139,7 @@ class DecisionProcess(metaclass=ABCMeta):
 
         Args:
             B (set): current belief space approximated by an unweighted set of states (particles) 
-            h (History): current history
+            nSim(int): number of simulations
         """
         pass
 
