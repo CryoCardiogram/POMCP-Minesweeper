@@ -275,6 +275,8 @@ def search(h, proc, max_iter, clean=True):
         simulate(s, root , proc)
         ite+=1   
 
+    updateR(root)
+
     # greedy action selection
     a = UCB1_action_selection(root, greedy=True)[0]
     params['root'] = root
@@ -286,4 +288,18 @@ def search(h, proc, max_iter, clean=True):
         print("next belief size: {}".format(len(child.B)))
     return a
     
-    
+def updateR(root):
+    assert isinstance(root, Node)
+    with open("hi_lo_R.txt", "r") as o:
+        params['R_lo'], params['R_hi'] = tuple(float(l) for l in o.readlines())
+    hi = -math.inf
+    lo = math.inf
+    for a, child in root.children.items():
+        if child.V > hi: 
+            hi = child.V
+        if child.V < lo:
+            lo = child.V
+    params['R_lo'] = lo if lo < params['R_lo'] else params['R_lo']
+    params['R_hi'] = hi if hi > params['R_hi'] else params['R_hi']
+    with open("hi_lo_R.txt", "w") as o:
+        o.write("{}\n{}".format(params['R_lo'], params['R_hi']))
