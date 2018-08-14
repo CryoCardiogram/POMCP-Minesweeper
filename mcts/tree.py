@@ -82,6 +82,7 @@ class Node(object):
         """
         o = self.h.observs[0]
         assert(str(self.h.actions[-1]) == '(empty)')
+        self.children = dict() # empty (otherwise, could explore actions already done)
         for a in o.available_actions():
             # updated history 
             ha = self.h.clone()
