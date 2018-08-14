@@ -15,7 +15,7 @@ import traceback
 
 b = Board(9,9,10)
 p = RandomPlayer()
-monte_carlo = MCPlayer(2000000, 30.0) 
+monte_carlo = MCPlayer(2000000, 1.0) 
 play_minesweeper(monte_carlo, b, True)
 
 

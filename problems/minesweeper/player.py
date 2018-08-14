@@ -25,9 +25,9 @@ class MCPlayer(AbstractPlayer):
             'timeout': timeout,
             'gamma' : 1.0, # minesweeper is a finite horizon game
             'epsilon': 0.0,
-            'log': 2,
+            'log': 0,
             'K': 16,
-            'c':10 
+            'c':0
         })
         self.h = History()
         self.last_action = POMDPAction()

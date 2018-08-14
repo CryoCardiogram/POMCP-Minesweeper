@@ -67,13 +67,13 @@ class Observation(POMDPObservation):
         return self.__is_start_obs() and a in corners
 
     def V_init(self, h , a):
-        if self.__is_corner_move(h, a):
+        if self.__is_corner_move(h, a) and False:
             #print("first move in corner")
             return 1
         return 0
     
     def N_init(self, h, a ):
-        if self.__is_corner_move(h,a):
+        if self.__is_corner_move(h,a) and False:
             return 1
         return 0
         
