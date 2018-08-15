@@ -27,4 +27,5 @@ def play_minesweeper(player, board, log=False):
             if log:
                 print("WIN\n")
         steps+=1
+    player.reset()
     return (win, steps)

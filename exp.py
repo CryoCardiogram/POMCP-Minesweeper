@@ -95,7 +95,7 @@ def experiment(agents, iterations, boards):
                 for b in boards:
                     try:
                         res[agent.name][b].append(play_minesweeper(agent.player, Board(b[0], b[1], b[2]), False))
-                    except (AssertionError,):
+                    except (AssertionError, KeyError, IndexError):
                         errors += 1
                         with open('err.txt', 'a') as err:
                             err.write("iteration {}\n Agent {}".format(i, agent.name))
@@ -117,7 +117,7 @@ def experiment(agents, iterations, boards):
 
 
 if __name__=='__main__' :
-    it = 100
+    it = 2
     if len(sys.argv) > 1:
         try: 
             it = int(sys.argv[1])

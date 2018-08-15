@@ -13,9 +13,16 @@ class AbstractPlayer(metaclass=ABCMeta):
     def next_action(self, state):
         pass
 
+    @abstractmethod
+    def reset(self):
+        pass
+
 class RandomPlayer(AbstractPlayer):
     def next_action(self, state):
         return (random.choice(range(state.board.h)), random.choice(range(state.board.w)) )
+    
+    def reset(self):
+        pass
 
 class MCPlayer(AbstractPlayer):
     def __init__(self, max_iter, timeout, log=0, pref=True):
@@ -44,6 +51,13 @@ class MCPlayer(AbstractPlayer):
         self.last_action = a
         assert isinstance(a, Action)
         return a.cell
+
+    def reset(self):
+        self.h = History()
+        self.last_action = POMDPAction()
+        self.first = True
+
+
 
 
 class QPlayer(AbstractPlayer):
@@ -129,6 +143,9 @@ class QPlayer(AbstractPlayer):
     def best_action(self, a_v_map):
         random.shuffle(a_v_map)
         return max(a_v_map)
+    
+    def reset(self):
+        pass
 
     def next_action(self, state): 
         if self.first:
