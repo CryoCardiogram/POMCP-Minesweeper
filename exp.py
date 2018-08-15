@@ -22,7 +22,7 @@ class Agent(object):
 #train_Qplayer(10, Q,2, 5, 3 )
 #play_minesweeper(monte_carlo, b, True)
 INF = 200000000
-PERF = [(1,3,1), (2,5,3), (5,5,10), (5,5,15), (8,8,10), (9,9,10), (16,16,40)]
+PERF = [(1,3,1), (2,5,3), (5,5,10), (5,5,15)]#, (8,8,10), (9,9,10), (16,16,40)]
 BSIZE = [(4,4,2), (4,4,3, (4,4,4)), (4,4,5), (4,4,6)]
 ALL = PERF + BSIZE
 Q_TRAINS = [ 5000, 10000, 50000, 100000]
@@ -74,7 +74,7 @@ def experiment(agents, iterations, boards):
                 pass
     
     
-    def main_loop():
+    def main_loop(res):
         errors = 0
         print("main loop")
         first_q = False
@@ -94,25 +94,35 @@ def experiment(agents, iterations, boards):
             for agent in agents:
                 for b in boards:
                     try:
-                        res[agent.name][b].append(play_minesweeper(agent.player, Board(b[0], b[1], b[2]), False))
+                        w, s = play_minesweeper(agent.player, Board(b[0], b[1], b[2]), False)
+                        res[agent.name][b].append((w,s))
                     except (AssertionError, KeyError, IndexError):
                         errors += 1
                         with open('err.txt', 'a') as err:
                             err.write("iteration {}\n Agent {}".format(i, agent.name))
                             tb = sys.exc_info()[2]
-                            traceback.print_tb(tb, file=err)        
+                            traceback.print_tb(tb, file=err)      
+
+            for aname, b_res_list in res.items():
+                for b, res in b_res_list.items():
+                    with open(filename(AGENTS[aname], b), 'a') as f:
+                        cW = csv.writer(f)
+                        cW.writerows(res)  
         print("{} error(s)".format(errors))
         print("100% - {} min(s)".format( (time.time()-start)/60 ))
 
 
-   
-    main_loop()
 
-    for aname, b_res_list in res.items():
-        for b, res in b_res_list.items():
-            with open(filename(AGENTS[aname], b), 'a') as f:
-                cW = csv.writer(f)
-                cW.writerows(res)
+    try:
+        main_loop(res)
+    except:
+        pass
+    finally:
+        for aname, b_res_list in res.items():
+            for b, res in b_res_list.items():
+                with open(filename(AGENTS[aname], b), 'a') as f:
+                    cW = csv.writer(f)
+                    cW.writerows(res)
 
 
 
