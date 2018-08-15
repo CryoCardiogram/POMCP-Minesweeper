@@ -63,6 +63,7 @@ class QPlayer(AbstractPlayer):
             if 'P{}.pkl'.format(ind) in os.listdir('obj'):
                 self.P = load_obj("P{}".format(ind))
         self.sym = sym
+        self.first = True
 
     def __sym_update(self, state, cell): 
         for k,m in zip(symmetries(state.board.knowledge), symmetries(state.board.minefield)):
@@ -127,6 +128,9 @@ class QPlayer(AbstractPlayer):
         return max(a_v_map)
 
     def next_action(self, state): 
+        if self.first:
+            self.first = False
+            return (0,0)
         if not self.sym:
             s = self.P.get(state, None )
             if s:
@@ -149,5 +153,5 @@ class QPlayer(AbstractPlayer):
 def train_Qplayer(rounds, qplayer, h, w, m):
     assert isinstance(qplayer, QPlayer)
     for r in range(rounds):
-        print(r)
+        #print(r)
         qplayer.train(Board(h,w,m))
