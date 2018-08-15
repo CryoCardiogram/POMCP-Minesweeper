@@ -1,5 +1,5 @@
 from problems.minesweeper.board import Board
-from problems.minesweeper.player import RandomPlayer, MCPlayer
+from problems.minesweeper.player import RandomPlayer, MCPlayer, QPlayer, train_Qplayer
 from problems.minesweeper.play import play_minesweeper
 import os
 import sys
@@ -7,16 +7,12 @@ import csv
 import traceback
 
 
-""" def train_Qplayer(rounds, qplayer):
-    assert isinstance(qplayer, QPlayer)
-    print("training...")
-    for r in range(rounds):
-        qplayer.train(Board(4,4,4)) """
-
 b = Board(9,9,10)
 p = RandomPlayer()
 monte_carlo = MCPlayer(2000000, 30.0) 
-play_minesweeper(monte_carlo, b, True)
+Q = QPlayer("toast", True)
+#train_Qplayer(10, Q,2, 5, 3 )
+#play_minesweeper(monte_carlo, b, True)
 
 
 if __name__=='__main__' and False:
