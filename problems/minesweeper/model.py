@@ -67,14 +67,14 @@ class Observation(POMDPObservation):
         return self.__is_start_obs() and a in corners
 
     def V_init(self, h , a):
-        if self.__is_corner_move(h, a) and False:
+        if self.__is_corner_move(h, a) and params['prefs']:
             #print("first move in corner")
-            return 1
+            return params['R_hi']
         return 0
     
     def N_init(self, h, a ):
-        if self.__is_corner_move(h,a) and False:
-            return 1
+        if self.__is_corner_move(h,a) and params['prefs']:
+            return 10
         return 0
         
             
@@ -204,11 +204,45 @@ class Minesweeper(DecisionProcess):
         self.h = h
         self.w = w
         self.m = m
+        # map (h, w, m) -> (R_lo, R_hi)
+        self.R = dict()
+        self.R.update({
+            (1,3,1): (0.0, 2.0),
+            (2,5,3): (0.0, 5.209737827715355),
+            (4,4,2): (0.0, 12.947368421052628),
+            (4,4,3): (0.0, 8.734375000000004),
+            (4,4,4): (0.0, 8.3),
+            (4,4,5): (0.0, 5.55357142857143),
+            (4,4,6): (0.0, 4.414507772020726),
+            (5,5,10): (0.0, 5.0),
+            (5,5,15): (0.0, 2.2974358974358977),
+            (8,8,10): (0.0, 36.75),
+            (9,9,10): (0.0, 60.0),
+            (16,16,40): (0.0, 160.0)
+        })
+        self.set_params()
 
     def __empty_belief(self, B, h):
         # create at least 1 particle that can then be used by the invigoration algorithm,
         # based on the current observation
         pass
+    
+    def set_params(self):
+        """
+        This method is called by the player to initiate parameters values before the search.
+        """
+        
+        lo, hi = self.R.get((self.h, self.w, self.m), (0.0, 0.0))
+        params.update({
+            'gamma' : 1.0, # minesweeper is a finite horizon game
+            'epsilon': 0.0,
+            'log': 2,
+            'K': 16,
+            'R_lo': lo,
+            'R_hi': hi,
+            'max_depth': self.h * self.w / 2,
+            'c':hi-lo
+        })
 
     def invigoration(self, B, nSim):
         assert len(B) > 0, "empty belief"

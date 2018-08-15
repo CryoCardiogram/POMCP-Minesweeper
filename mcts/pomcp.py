@@ -19,6 +19,7 @@ params = {
     'start_time': 0,    # start time in seconds
     'max_depth': 20,    # max depth
     'log': 1,           # level of logs printed on console [0,2]
+    'prefs': True,      # enable/disable prefered actions
     'root': Node(POMDPAction(), History(), 0, 0, list())
 }
 
@@ -99,7 +100,8 @@ def end_rollout(depth, h):
         #print("terminal obs")
         return True
     elif (time.time() - params['start_time']) >= params['timeout']:
-        #print("time out")
+        if params['log'] >= 2:
+            print("time out")
         #print(time.time() - params['start_time'])
         return True
     else:
@@ -139,7 +141,6 @@ def rollout(state, node, depth, policy=None):
         rewards.append(float(r))
         d += 1
         h.add(a, o)
-    #print(rewards)
     return discount_calc(rewards, params['gamma'])[0] if len(rewards) > 0 else 0
 
 def simulate(state, node, proc=None):
@@ -182,11 +183,6 @@ def simulate(state, node, proc=None):
 
         if not root.is_intree(nod.h):
             # Expansion
-            #print("expansion d:{} a: {}".format(d, nod.a))
-            #for a, c in root.children.items():
-            #    print("child {}".format(a))
-            #    print(c.h)
-            #    print(c.h == nod.h and c.inTree)
             nod.create_children()
             nod.inTree = True
             backprop.append((nod, d, s.clone()))
@@ -196,14 +192,10 @@ def simulate(state, node, proc=None):
 
         # Selection
         a,u = UCB1_action_selection(nod)
-        #print("selection d:{} a: {}".format(d, a))
+
         # Simulation
         o, r = a.do_on(s)
         hao = nod.h.clone()
-        #hao.add(a, o)
-        #nod.children[a] = create_node(hao, a, o)
-        #nod.children[a].h.add(a,o)
-        #nod.children[a].inTree = True
         rewards.append(float(r))
         if nod.children[a].inTree:
             fringe.append((nod.children[a], d+1))
@@ -224,16 +216,9 @@ def simulate(state, node, proc=None):
             o, tmp = act.do_on(sc)
         if nod.h.last_obs() == o:
             nod.B.append(s)
-            #if d >= 1:
-                #print("oyo")
-        #else:
-        #    print("wrong belief update?")
-        #print("d{}, h:{}, bsize: {}".format(d, nod.h, len(node.B)))
+            
         nod_a.N += 1
         nod_a.V += (R - nod_a.V) / nod_a.N 
-    
-    #print("root belief size: {}".format(len(root.B)))
-    #print("max depth:{}".format(max_d))
     
 
 def search(h, proc, max_iter, clean=True):
@@ -279,8 +264,6 @@ def search(h, proc, max_iter, clean=True):
         simulate(s, root , proc)
         ite+=1   
 
-    updateR(root, proc)
-
     # greedy action selection
     a = UCB1_action_selection(root, greedy=True)[0]
     params['root'] = root
@@ -291,24 +274,4 @@ def search(h, proc, max_iter, clean=True):
     if params['log'] >= 1:
         print("next belief size: {}".format(len(child.B)))
     return a
-    
-def updateR(root, proc):
-    assert isinstance(root, Node)
-    fname = "hi_lo_{}x{}m{}.txt".format(proc.h, proc.w, proc.m)
-    if fname not in os.listdir():
-        with open(fname, 'w') as st:
-            st.write('0\n0')
 
-    with open(fname, "r+") as o:
-        params['R_lo'], params['R_hi'] = tuple(float(l) for l in o.readlines())
-    hi = -math.inf
-    lo = math.inf
-    for a, child in root.children.items():
-        if child.V > hi: 
-            hi = child.V
-        if child.V < lo:
-            lo = child.V
-    params['R_lo'] = lo if lo < params['R_lo'] else params['R_lo']
-    params['R_hi'] = hi if hi > params['R_hi'] else params['R_hi']
-    with open(fname, "w") as o:
-        o.write("{}\n{}".format(params['R_lo'], params['R_hi']))

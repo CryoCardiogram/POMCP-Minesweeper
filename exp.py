@@ -13,13 +13,13 @@ import traceback
     for r in range(rounds):
         qplayer.train(Board(4,4,4)) """
 
-b = Board(4,4,2)
+b = Board(9,9,10)
 p = RandomPlayer()
 monte_carlo = MCPlayer(2000000, 1.0) 
-#play_minesweeper(monte_carlo, b, True)
+play_minesweeper(monte_carlo, b, True)
 
 
-if __name__=='__main__' :
+if __name__=='__main__' and False:
 
     with open('random.csv', 'w+') as o:
         cW = csv.writer(o)

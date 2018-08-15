@@ -21,14 +21,6 @@ class MCPlayer(AbstractPlayer):
     def __init__(self, max_iter, timeout):
         self.max_iter = max_iter
         params['timeout']= timeout
-        params.update({
-            'timeout': timeout,
-            'gamma' : 1.0, # minesweeper is a finite horizon game
-            'epsilon': 0.0,
-            'log': 0,
-            'K': 16,
-            'c':0
-        })
         self.h = History()
         self.last_action = POMDPAction()
         self.first = True
