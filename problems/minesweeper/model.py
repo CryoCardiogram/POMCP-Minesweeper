@@ -238,7 +238,6 @@ class Minesweeper(DecisionProcess):
         params.update({
             'gamma' : 1.0, # minesweeper is a finite horizon game
             'epsilon': 0.0,
-            'log': 2,
             'K': 16,
             'R_lo': lo,
             'R_hi': hi,

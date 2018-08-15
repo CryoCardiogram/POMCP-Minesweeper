@@ -18,9 +18,12 @@ class RandomPlayer(AbstractPlayer):
         return (random.choice(range(state.board.h)), random.choice(range(state.board.w)) )
 
 class MCPlayer(AbstractPlayer):
-    def __init__(self, max_iter, timeout):
+    def __init__(self, max_iter, timeout, log=0, pref=True):
         self.max_iter = max_iter
         params['timeout']= timeout
+        params['log'] = log
+        if not pref:
+            params["prefs"] = False
         self.h = History()
         self.last_action = POMDPAction()
         self.first = True
