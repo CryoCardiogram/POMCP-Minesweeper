@@ -12,6 +12,7 @@ class Observation(POMDPObservation):
     def __init__(self, knowledge, mines):
         self.K = knowledge
         self.m = mines
+        self.__t = tuple([ tuple(row) for row in self.K ])
     
     def available_actions(self, h = None):
         if self.is_terminal():
@@ -26,14 +27,13 @@ class Observation(POMDPObservation):
                     yield a
     
     def __eq__(self, oth):
-        for i in range(len(self.K)):
-            if self.K[i] != oth.K[i]:
-                return False
-        return True
+        if not isinstance(oth, Observation):
+            return False 
+        return self.__t == oth.__t and self.m == oth.m
     
     def __hash__(self):
         t = tuple([ tuple(row) for row in self.K ])
-        return hash(t)
+        return hash((t, self.m)) 
     
     def __str__(self):
         s = ''
@@ -41,6 +41,8 @@ class Observation(POMDPObservation):
             s += str(l)
             s += '\n'
         return s 
+    
+    #__repr__= __str__
     
     def is_terminal(self):
         count = 0

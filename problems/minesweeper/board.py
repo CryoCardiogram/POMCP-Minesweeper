@@ -1,9 +1,35 @@
 import os
 import random
 from .globals import FMOVE, UNCOV, MINE, NOTHING
+import numpy as np
 
 def array2D(row, col, elem):
     return [[ elem for y in range(col)] for l in range(row)]
+
+def symmetries(matrix):
+    """
+    Generates all symmetries of the given panel by rotation / mirror
+    Args:
+        matrix: 2D array
+
+    Yield:
+        (matrix, int, bool): tuple containing next matrix, number of 90* rotation and T/F if it was mirrored 
+    """
+    for i in range(4):
+        r = np.rot90(matrix, k=i)
+        yield (r, i, False)
+        yield (np.fliplr(r), i, True)
+
+def symm_coord(r,c, matrix, nr=0, flip=False):
+    m = array2D(len(matrix), len(matrix[0]), 0)
+    m[r][c] = 1
+    m = np.rot90(m, k=nr)
+    m = np.fliplr(m) if flip else m
+    #return tuple(a for a in np.argwhere(np.array(m)==1)[0])
+    for i in range(len(m)):
+        for j in range(len(m[0])):
+            if m[i][j] == 1:
+                return (i,j)
 
 class Board(object):
     def __init__(self, height, width, mines):
@@ -147,3 +173,4 @@ class Board(object):
         b.nUncov = self.nUncov
         b.firstmove = self.firstmove
         return b
+            
